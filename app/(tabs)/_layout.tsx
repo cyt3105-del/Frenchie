@@ -51,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: "Conjugate",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="gamecontroller.fill" color={color} />
+            <IconSymbol size={32} name="gamecontroller.fill" color={color} />
           ),
         }}
       />
