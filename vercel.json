@@ -2,7 +2,6 @@
   "buildCommand": "npm run build:web",
   "outputDirectory": "dist",
   "installCommand": "npm install",
-  "nodeVersion": "18.x",
   "env": {
     "NODE_ENV": "production",
     "EXPO_USE_METRO_WORKSPACE_ROOT": "1"
