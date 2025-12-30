@@ -5,7 +5,15 @@ import Animated, {
   useSharedValue,
   withTiming,
   withSequence,
+  runOnJS,
+  interpolate,
+  Extrapolate,
 } from "react-native-reanimated";
+import { PanGestureHandler, State } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+} from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { VocabularyItem } from "../data/vocabulary";
@@ -36,6 +44,12 @@ export function Flashcard({
   const contentOpacity = useSharedValue(0);
   const { speak, isSpeaking } = useSpeech();
 
+  // Swipe gesture values
+  const translateX = useSharedValue(0);
+  const swipeOpacity = useSharedValue(0);
+  const rememberOpacity = useSharedValue(0);
+  const forgotOpacity = useSharedValue(0);
+
   const handleReveal = useCallback(() => {
     if (!revealed) {
       if (Platform.OS !== "web") {
@@ -64,8 +78,12 @@ export function Flashcard({
     // Reset state for next card
     setRevealed(false);
     contentOpacity.value = 0;
+    translateX.value = 0;
+    swipeOpacity.value = 0;
+    rememberOpacity.value = 0;
+    forgotOpacity.value = 0;
     onRemember();
-  }, [onRemember, scale, contentOpacity]);
+  }, [onRemember, scale, contentOpacity, translateX, swipeOpacity, rememberOpacity, forgotOpacity]);
 
   const handleForgot = useCallback(() => {
     if (Platform.OS !== "web") {
@@ -78,15 +96,99 @@ export function Flashcard({
     // Reset state for next card
     setRevealed(false);
     contentOpacity.value = 0;
+    translateX.value = 0;
+    swipeOpacity.value = 0;
+    rememberOpacity.value = 0;
+    forgotOpacity.value = 0;
     onForgot();
-  }, [onForgot, scale, contentOpacity]);
+  }, [onForgot, scale, contentOpacity, translateX, swipeOpacity, rememberOpacity, forgotOpacity]);
+
+
+  // Gesture handler for swipe actions
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      // Store initial position
+    })
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+
+      // Update visual feedback based on swipe direction
+      if (translateX.value > 0) {
+        // Swiping right (remember)
+        rememberOpacity.value = interpolate(
+          translateX.value,
+          [0, 100],
+          [0, 1],
+          Extrapolate.CLAMP
+        );
+        forgotOpacity.value = 0;
+      } else {
+        // Swiping left (forgot)
+        forgotOpacity.value = interpolate(
+          Math.abs(translateX.value),
+          [0, 100],
+          [0, 1],
+          Extrapolate.CLAMP
+        );
+        rememberOpacity.value = 0;
+      }
+
+      swipeOpacity.value = interpolate(
+        Math.abs(translateX.value),
+        [0, 50],
+        [0, 1],
+        Extrapolate.CLAMP
+      );
+    })
+    .onEnd((event) => {
+      const threshold = 120; // Minimum swipe distance to trigger action
+
+      if (Math.abs(event.translationX) > threshold) {
+        if (event.translationX > 0) {
+          // Swiped right - remember
+          runOnJS(handleRemember)();
+        } else {
+          // Swiped left - forgot
+          runOnJS(handleForgot)();
+        }
+      } else {
+        // Not enough swipe distance, reset position
+        translateX.value = withTiming(0, { duration: 200 });
+        swipeOpacity.value = withTiming(0, { duration: 200 });
+        rememberOpacity.value = withTiming(0, { duration: 200 });
+        forgotOpacity.value = withTiming(0, { duration: 200 });
+      }
+    });
 
   const animatedCardStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [
+      { scale: scale.value },
+      { translateX: translateX.value },
+      {
+        rotate: `${interpolate(
+          translateX.value,
+          [-200, 0, 200],
+          [-15, 0, 15],
+          Extrapolate.CLAMP
+        )}deg`
+      }
+    ],
   }));
 
   const animatedContentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
+  }));
+
+  const swipeFeedbackStyle = useAnimatedStyle(() => ({
+    opacity: swipeOpacity.value,
+  }));
+
+  const rememberFeedbackStyle = useAnimatedStyle(() => ({
+    opacity: rememberOpacity.value,
+  }));
+
+  const forgotFeedbackStyle = useAnimatedStyle(() => ({
+    opacity: forgotOpacity.value,
   }));
 
   const levelStyle = levelColors[item.level] || levelColors.A2;
@@ -104,14 +206,16 @@ export function Flashcard({
     : {};
 
   return (
-    <Animated.View style={[styles.container, animatedCardStyle]}>
-      <Pressable
-        onPress={handleReveal}
-        style={({ pressed }) => [
-          styles.card,
-          pressed && !revealed && styles.cardPressed,
-        ]}
-      >
+    <View style={styles.container}>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={[styles.cardContainer, animatedCardStyle]}>
+          <Pressable
+            onPress={handleReveal}
+            style={({ pressed }) => [
+              styles.card,
+              pressed && !revealed && styles.cardPressed,
+            ]}
+          >
         <View className="bg-surface rounded-3xl p-6 flex-1 border border-border shadow-sm">
           {/* Header with level badge and speaker button */}
           <View className="flex-row justify-between items-center mb-6">
@@ -205,43 +309,44 @@ export function Flashcard({
             )}
           </View>
 
-          {/* Action buttons - only visible when revealed */}
+          {/* Swipe instruction - only visible when revealed */}
           {revealed && (
             <Animated.View
               style={animatedContentStyle}
-              className="flex-row gap-4 mt-6"
+              className="items-center mt-6"
             >
-              <Pressable
-                onPress={handleForgot}
-                style={({ pressed }) => [
-                  styles.button,
-                  styles.forgotButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.forgotButtonText}>Forgot</Text>
-              </Pressable>
-              <Pressable
-                onPress={handleRemember}
-                style={({ pressed }) => [
-                  styles.button,
-                  styles.rememberButton,
-                  pressed && styles.buttonPressed,
-                ]}
-              >
-                <Text style={styles.rememberButtonText}>Remember</Text>
-              </Pressable>
+              <Text className="text-sm text-muted">
+                Swipe left to forget, right to remember
+              </Text>
             </Animated.View>
           )}
         </View>
       </Pressable>
+
+      {/* Swipe feedback overlays */}
+      <Animated.View style={[styles.swipeFeedback, swipeFeedbackStyle]}>
+        <Animated.View style={[styles.rememberFeedback, rememberFeedbackStyle]}>
+          <MaterialIcons name="check-circle" size={48} color="#22C55E" />
+          <Text style={styles.feedbackText}>Remember</Text>
+        </Animated.View>
+        <Animated.View style={[styles.forgotFeedback, forgotFeedbackStyle]}>
+          <MaterialIcons name="cancel" size={48} color="#F59E0B" />
+          <Text style={styles.feedbackText}>Forgot</Text>
+        </Animated.View>
+      </Animated.View>
     </Animated.View>
+    </GestureDetector>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  cardContainer: {
+    flex: 1,
+    position: 'relative',
   },
   card: {
     flex: 1,
@@ -302,5 +407,29 @@ const styles = StyleSheet.create({
     color: "#22C55E",
     fontWeight: "600",
     fontSize: 16,
+  },
+  swipeFeedback: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    pointerEvents: 'none',
+  },
+  rememberFeedback: {
+    position: 'absolute',
+    right: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  forgotFeedback: {
+    position: 'absolute',
+    left: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  feedbackText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+    marginTop: 8,
   },
 });
