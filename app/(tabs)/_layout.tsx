@@ -51,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: "Conjugate",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="puzzlepiece.fill" color={color} />
+            <IconSymbol size={28} name="function" color={color} />
           ),
         }}
       />
