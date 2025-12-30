@@ -8,6 +8,7 @@ export interface ProgressData {
   [id: string]: {
     forgotCount: number;
     lastReviewed: number;
+    veryFamiliar?: boolean;
   };
 }
 
@@ -108,6 +109,43 @@ export async function markForgot(
     [id]: {
       forgotCount: current.forgotCount + 1,
       lastReviewed: Date.now(),
+      veryFamiliar: false, // Reset very familiar flag when marked as forgot
+    },
+  };
+  await saveProgress(newProgress);
+  return newProgress;
+}
+
+// Mark word as very familiar
+export async function markVeryFamiliar(
+  id: string,
+  progress: ProgressData
+): Promise<ProgressData> {
+  const current = progress[id] || { forgotCount: 0, lastReviewed: 0 };
+  const newProgress = {
+    ...progress,
+    [id]: {
+      forgotCount: current.forgotCount,
+      lastReviewed: Date.now(),
+      veryFamiliar: true,
+    },
+  };
+  await saveProgress(newProgress);
+  return newProgress;
+}
+
+// Restore word from very familiar back to active learning
+export async function restoreFromFamiliar(
+  id: string,
+  progress: ProgressData
+): Promise<ProgressData> {
+  const current = progress[id] || { forgotCount: 0, lastReviewed: 0 };
+  const newProgress = {
+    ...progress,
+    [id]: {
+      forgotCount: current.forgotCount,
+      lastReviewed: Date.now(),
+      veryFamiliar: false,
     },
   };
   await saveProgress(newProgress);
@@ -126,6 +164,17 @@ export function getForgotList(progress: ProgressData): Array<{
       forgotCount: progress[item.id].forgotCount,
     }))
     .sort((a, b) => b.forgotCount - a.forgotCount);
+}
+
+// Get familiar words list (words marked as very familiar)
+export function getFamiliarList(progress: ProgressData): VocabularyItem[] {
+  return vocabulary
+    .filter((item) => progress[item.id]?.veryFamiliar === true)
+    .sort((a, b) => {
+      const aTime = progress[a.id]?.lastReviewed || 0;
+      const bTime = progress[b.id]?.lastReviewed || 0;
+      return bTime - aTime; // Most recently marked familiar first
+    });
 }
 
 // Reset all progress

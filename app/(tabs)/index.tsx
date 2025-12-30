@@ -9,6 +9,7 @@ import {
   saveCurrentIndex,
   markRemembered,
   markForgot,
+  markVeryFamiliar,
   getShuffledVocabulary,
   ProgressData,
 } from "@/stores/vocabulary-store";
@@ -85,8 +86,8 @@ export default function LearnScreen() {
 
   const handleVeryFamiliar = useCallback(async () => {
     if (!currentItem) return;
-    // Mark as very familiar - treat like remember but with special flag
-    const newProgress = await markRemembered(currentItem.id, progress);
+    // Mark as very familiar
+    const newProgress = await markVeryFamiliar(currentItem.id, progress);
     setProgress(newProgress);
 
     // Move to next card
