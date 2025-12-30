@@ -50,7 +50,7 @@ export function useSpeech() {
         utterance.rate = speechRate;
         utterance.pitch = 1.0;
 
-        // Get all voices and find French voices
+        // Get all voices and prioritize Daniel and Amelie
         const voices = window.speechSynthesis.getVoices();
         const frenchVoices = voices.filter((voice) => voice.lang.startsWith("fr"));
 
@@ -65,12 +65,18 @@ export function useSpeech() {
         if (selectedVoiceObj) {
           utterance.voice = selectedVoiceObj;
         } else if (frenchVoices.length > 0) {
-          // Use any available French voice - prioritize Daniel if available, otherwise first French voice
-          const danielVoice = frenchVoices.find((v) =>
+          // Priority: Daniel > Amelie > any other French voice
+          let preferredVoice = frenchVoices.find((v) =>
             v.name.toLowerCase().includes("daniel")
           );
 
-          utterance.voice = danielVoice || frenchVoices[0];
+          if (!preferredVoice) {
+            preferredVoice = frenchVoices.find((v) =>
+              v.name.toLowerCase().includes("amelie") || v.name.toLowerCase().includes("amélie")
+            );
+          }
+
+          utterance.voice = preferredVoice || frenchVoices[0];
         }
 
         utterance.onend = () => {

@@ -17,9 +17,6 @@ const PREFERRED_VOICES = [
   "Amelie",
   "Amélie",
   "Daniel",
-  "Léa",
-  "Lea",
-  "Thomas", // Sometimes Daniel is listed as Thomas on some systems
 ];
 
 // Get all available French voices on the device, filtered to preferred voices
@@ -44,74 +41,17 @@ export async function getAvailableFrenchVoices(): Promise<VoiceOption[]> {
         quality: voice.quality || "Default",
       }));
     
-    // If we don't have enough voices, try to find a natural French female voice
-    const hasAmelie = frenchVoices.some((v) => 
-      v.name.toLowerCase().includes("amelie") || v.name.toLowerCase().includes("amélie")
-    );
-    const hasDaniel = frenchVoices.some((v) => 
-      v.name.toLowerCase().includes("daniel")
-    );
-    const hasFemale = frenchVoices.some((v) => 
-      v.name.toLowerCase().includes("lea") || 
-      v.name.toLowerCase().includes("léa") ||
-      v.name.toLowerCase().includes("amelie") ||
-      v.name.toLowerCase().includes("amélie")
-    );
+    // Return only the preferred voices (Amelie and Daniel)
     
-    // If we're missing a natural French female voice, try to find one
-    if (!hasFemale || (!hasAmelie && !hasFemale)) {
-      const allFrenchVoices = voices
-        .filter((voice) => voice.language.startsWith("fr"))
-        .map((voice) => ({
-          identifier: voice.identifier,
-          name: voice.name || voice.identifier,
-          language: voice.language,
-          quality: voice.quality || "Default",
-        }));
-      
-      // Look for a French female voice (common names: Amelie, Léa, Marie, Sophie, etc.)
-      const femaleVoiceNames = ["amelie", "amélie", "léa", "lea", "marie", "sophie", "celine", "céline"];
-      const naturalFemaleVoice = allFrenchVoices.find((voice) =>
-        femaleVoiceNames.some((name) => voice.name.toLowerCase().includes(name))
-      );
-      
-      if (naturalFemaleVoice && !frenchVoices.find((v) => v.identifier === naturalFemaleVoice.identifier)) {
-        frenchVoices.push(naturalFemaleVoice);
-      }
-    }
-    
-    // Ensure we have Daniel/Thomas if available
-    if (!hasDaniel) {
-      const allFrenchVoices = voices
-        .filter((voice) => voice.language.startsWith("fr"))
-        .map((voice) => ({
-          identifier: voice.identifier,
-          name: voice.name || voice.identifier,
-          language: voice.language,
-          quality: voice.quality || "Default",
-        }));
-      
-      const danielVoice = allFrenchVoices.find((voice) =>
-        voice.name.toLowerCase().includes("daniel") || 
-        voice.name.toLowerCase().includes("thomas")
-      );
-      
-      if (danielVoice && !frenchVoices.find((v) => v.identifier === danielVoice.identifier)) {
-        frenchVoices.push(danielVoice);
-      }
-    }
-    
-    // Sort: Amelie first, then Daniel, then others
+    // Sort: Daniel first, then Amelie
     frenchVoices.sort((a, b) => {
       const aName = a.name.toLowerCase();
       const bName = b.name.toLowerCase();
-      
-      if (aName.includes("amelie") || aName.includes("amélie")) return -1;
-      if (bName.includes("amelie") || bName.includes("amélie")) return 1;
+
       if (aName.includes("daniel")) return -1;
       if (bName.includes("daniel")) return 1;
-      if (aName.includes("thomas")) return -1;
-      if (bName.includes("thomas")) return 1;
+      if (aName.includes("amelie") || aName.includes("amélie")) return -1;
+      if (bName.includes("amelie") || bName.includes("amélie")) return 1;
       return 0;
     });
     
@@ -169,10 +109,17 @@ export function getAvailableFrenchVoicesWeb(): VoiceOption[] {
   }
 
   const voices = window.speechSynthesis.getVoices();
+  const preferredNames = ["amelie", "amélie", "daniel"];
 
-  // First, try to get all French voices (not just preferred ones)
-  const allFrenchVoices = voices
-    .filter((voice) => voice.lang.startsWith("fr"))
+  const frenchVoices = voices
+    .filter((voice) => {
+      const languageMatch = voice.lang.startsWith("fr");
+      const name = voice.name.toLowerCase();
+      const isPreferred = preferredNames.some(
+        (preferred) => name.includes(preferred)
+      );
+      return languageMatch && isPreferred;
+    })
     .map((voice) => ({
       identifier: voice.voiceURI || voice.name,
       name: voice.name,
@@ -180,85 +127,18 @@ export function getAvailableFrenchVoicesWeb(): VoiceOption[] {
       quality: voice.localService ? "Enhanced" : "Default",
     }));
 
-  // If we have French voices, return them all (don't limit to preferred names)
-  if (allFrenchVoices.length > 0) {
-    return allFrenchVoices;
-  }
-
-  // Fallback: if no French voices found, return empty array
-  return [];
-
-  // If we don't have enough voices, try to find a natural French female voice
-  const hasAmelie = frenchVoices.some((v) => 
-    v.name.toLowerCase().includes("amelie") || v.name.toLowerCase().includes("amélie")
-  );
-  const hasDaniel = frenchVoices.some((v) => 
-    v.name.toLowerCase().includes("daniel")
-  );
-  const hasFemale = frenchVoices.some((v) => 
-    v.name.toLowerCase().includes("lea") || 
-    v.name.toLowerCase().includes("léa") ||
-    v.name.toLowerCase().includes("amelie") ||
-    v.name.toLowerCase().includes("amélie")
-  );
-  
-  // If we're missing a natural French female voice, try to find one
-  if (!hasFemale || (!hasAmelie && !hasFemale)) {
-    const allFrenchVoices = voices
-      .filter((voice) => voice.lang.startsWith("fr"))
-      .map((voice) => ({
-        identifier: voice.voiceURI || voice.name,
-        name: voice.name,
-        language: voice.lang,
-        quality: voice.localService ? "Enhanced" : "Default",
-      }));
-    
-    // Look for a French female voice
-    const femaleVoiceNames = ["amelie", "amélie", "léa", "lea", "marie", "sophie", "celine", "céline"];
-    const naturalFemaleVoice = allFrenchVoices.find((voice) =>
-      femaleVoiceNames.some((name) => voice.name.toLowerCase().includes(name))
-    );
-    
-    if (naturalFemaleVoice && !frenchVoices.find((v) => v.identifier === naturalFemaleVoice.identifier)) {
-      frenchVoices.push(naturalFemaleVoice);
-    }
-  }
-  
-  // Ensure we have Daniel/Thomas if available
-  if (!hasDaniel) {
-    const allFrenchVoices = voices
-      .filter((voice) => voice.lang.startsWith("fr"))
-      .map((voice) => ({
-        identifier: voice.voiceURI || voice.name,
-        name: voice.name,
-        language: voice.lang,
-        quality: voice.localService ? "Enhanced" : "Default",
-      }));
-    
-    const danielVoice = allFrenchVoices.find((voice) =>
-      voice.name.toLowerCase().includes("daniel") || 
-      voice.name.toLowerCase().includes("thomas")
-    );
-    
-    if (danielVoice && !frenchVoices.find((v) => v.identifier === danielVoice.identifier)) {
-      frenchVoices.push(danielVoice);
-    }
-  }
-  
-  // Sort: Amelie first, then Daniel, then others
+  // Sort: Daniel first, then Amelie
   frenchVoices.sort((a, b) => {
     const aName = a.name.toLowerCase();
     const bName = b.name.toLowerCase();
-    
-    if (aName.includes("amelie") || aName.includes("amélie")) return -1;
-    if (bName.includes("amelie") || bName.includes("amélie")) return 1;
+
     if (aName.includes("daniel")) return -1;
     if (bName.includes("daniel")) return 1;
-    if (aName.includes("thomas")) return -1;
-    if (bName.includes("thomas")) return 1;
+    if (aName.includes("amelie") || aName.includes("amélie")) return -1;
+    if (bName.includes("amelie") || bName.includes("amélie")) return 1;
     return 0;
   });
-  
+
   return frenchVoices;
 }
 
