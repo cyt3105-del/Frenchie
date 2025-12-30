@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:web",
+  "buildCommand": "rm -rf node_modules/.cache && npx expo export --platform web --clear",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "env": {

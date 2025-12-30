@@ -8,7 +8,9 @@ config.resolver = {
   ...config.resolver,
   blockList: [
     ...(config.resolver?.blockList || []),
-    /react-native-css-interop\/\.cache/
+    /react-native-css-interop\/\.cache/,
+    /\.cache/,
+    /node_modules\/.*\.cache/
   ]
 };
 
