@@ -1728,7 +1728,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "Maybe he will come tomorrow.",
     level: "A2",
     category: "word",
-    collection: "general",
+    collection: "daily-expressions",
   },
   {
     id: "a2-010",
@@ -1738,7 +1738,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "We work together.",
     level: "A2",
     category: "word",
-    collection: "general",
+    collection: "daily-expressions",
   },
   {
     id: "a2-019",
@@ -1748,7 +1748,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I need your help.",
     level: "A2",
     category: "phrase",
-    collection: "general",
+    collection: "daily-expressions",
   },
   {
     id: "a2-020",
@@ -1758,7 +1758,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I feel like traveling.",
     level: "A2",
     category: "phrase",
-    collection: "general",
+    collection: "daily-expressions",
   },
   {
     id: "a2-025",
@@ -1780,7 +1780,7 @@ export const vocabulary: VocabularyItem[] = [
     level: "A2",
     category: "word",
     gender: "feminine",
-    collection: "general",
+    collection: "daily-routines",
   },
   {
     id: "b1-006",
@@ -1800,7 +1800,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I'm used to getting up early.",
     level: "B1",
     category: "phrase",
-    collection: "general",
+    collection: "daily-expressions",
   },
   {
     id: "b1-008",
@@ -1820,7 +1820,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I look forward to seeing you again.",
     level: "B1",
     category: "phrase",
-    collection: "general",
+    collection: "emotions",
   },
   {
     id: "b1-010",
@@ -1840,7 +1840,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I'd rather stay at home.",
     level: "B1",
     category: "word",
-    collection: "general",
+    collection: "conjunctions",
   },
   {
     id: "b1-012",
@@ -1850,7 +1850,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I like fruits, especially strawberries.",
     level: "B1",
     category: "word",
-    collection: "general",
+    collection: "conjunctions",
   },
   {
     id: "b1-013",
@@ -1860,7 +1860,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "There are about a hundred people.",
     level: "B1",
     category: "word",
-    collection: "general",
+    collection: "conjunctions",
   },
   {
     id: "b1-014",
@@ -1870,7 +1870,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "Despite the rain, we went out.",
     level: "B1",
     category: "word",
-    collection: "general",
+    collection: "conjunctions",
   },
   {
     id: "b1-015",
@@ -1880,7 +1880,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I succeeded thanks to your help.",
     level: "B1",
     category: "phrase",
-    collection: "general",
+    collection: "conjunctions",
   },
   {
     id: "b1-016",
@@ -1900,7 +1900,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "Instead of watching TV, read a book.",
     level: "B1",
     category: "phrase",
-    collection: "general",
+    collection: "conjunctions",
   },
   {
     id: "b1-018",
