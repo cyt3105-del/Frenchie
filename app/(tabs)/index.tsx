@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { Flashcard } from "@/components/flashcard";
-import { VocabularyItem } from "@/data/vocabulary";
+import { VocabularyItem } from "@/data/vocabulary.js";
 import {
   loadProgress,
   loadCurrentIndex,

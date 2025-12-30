@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { vocabulary, VocabularyItem } from "../data/vocabulary";
+import { vocabulary, VocabularyItem } from "../data/vocabulary.js";
 
 const PROGRESS_KEY = "frenchie_progress";
 const CURRENT_INDEX_KEY = "frenchie_current_index";
