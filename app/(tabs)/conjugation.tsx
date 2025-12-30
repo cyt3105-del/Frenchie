@@ -251,7 +251,6 @@ const VERBS_DATA: VerbData[] = [
 ];
 
 export default function ConjugationScreen() {
-  const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>("beginner");
   const [currentVerb, setCurrentVerb] = useState<VerbData | null>(null);
   const [currentPronounIndex, setCurrentPronounIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
@@ -264,17 +263,14 @@ export default function ConjugationScreen() {
   const [streak, setStreak] = useState(0);
   const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
   const [currentDisplaySentence, setCurrentDisplaySentence] = useState<string>("");
-  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé" | "imparfait">("present");
+  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé">("present");
 
   const { speak } = useSpeech();
 
-  // Filter verbs by difficulty (if any past tense selected, include all verbs)
+  // Use the full verb pool; tense controls which conjugations are used
   const availableVerbs = useMemo(() => {
-    if (selectedTense !== "present") {
-      return VERBS_DATA;
-    }
-    return VERBS_DATA.filter(verb => verb.difficulty === selectedDifficulty);
-  }, [selectedDifficulty, selectedTense]);
+    return VERBS_DATA;
+  }, []);
 
   // Generate multiple choice options
   const generateMultipleChoice = useCallback((correctAnswer: string, allConjugations: string[]) => {
@@ -580,33 +576,11 @@ export default function ConjugationScreen() {
         </View>
       </View>
 
-      {/* Difficulty Selector */}
-      <View className="flex-row gap-2 mb-6">
-        {(["beginner", "intermediate", "advanced"] as DifficultyLevel[]).map((level) => (
-          <Pressable
-            key={level}
-            onPress={() => setSelectedDifficulty(level)}
-            style={({ pressed }) => [
-              styles.difficultyButton,
-              selectedDifficulty === level && styles.activeDifficultyButton,
-              pressed && styles.pressedButton,
-            ]}
-          >
-            <Text
-              style={[
-                styles.difficultyButtonText,
-                selectedDifficulty === level && styles.activeDifficultyButtonText,
-              ]}
-            >
-              {level.charAt(0).toUpperCase() + level.slice(1)}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      {/* (Difficulty selector removed — using full verb pool; filter by tense only) */}
 
       {/* Tense Selector */}
       <View className="flex-row gap-2 mb-6">
-        {(["present", "imparfait", "passéComposé"] as const).map((tense) => (
+        {(["present", "passéComposé"] as const).map((tense) => (
           <Pressable
             key={tense}
             onPress={() => setSelectedTense(tense)}
@@ -622,7 +596,7 @@ export default function ConjugationScreen() {
                 selectedTense === tense && styles.activeDifficultyButtonText,
               ]}
             >
-              {tense === "present" ? "Present" : tense === "imparfait" ? "Imparfait" : "Passé composé"}
+              {tense === "present" ? "Present (I do / I am doing)" : "Past (I did)"}
             </Text>
           </Pressable>
         ))}
