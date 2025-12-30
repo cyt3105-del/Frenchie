@@ -559,10 +559,10 @@ export default function ConjugationScreen() {
     }
   }, [currentFullSentence, speak]);
 
-  // Initialize first exercise
+  // Initialize first exercise and refresh when available verbs or tense changes
   useEffect(() => {
     startNewExercise();
-  }, [availableVerbs]);
+  }, [availableVerbs, selectedTense]);
 
   if (availableVerbs.length === 0) {
     return (
