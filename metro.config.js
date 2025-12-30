@@ -8,15 +8,20 @@ config.resolver = {
   ...config.resolver,
   blockList: [
     ...(config.resolver?.blockList || []),
-    /react-native-css-interop\/\.cache/,
+    /react-native-css-interop/,
     /\.cache/,
-    /node_modules\/.*\.cache/
+    /node_modules\/.*\.cache/,
+    /.*\.cache\/.*/,
+    /react-native-css-interop\/\.cache\/web\.css/
   ]
 };
 
-module.exports = withNativeWind(config, {
-  input: "./global.css",
-  // Force write CSS to file system instead of virtual modules
-  // This fixes iOS styling issues in development mode
-  forceWriteFileSystem: true,
-});
+// Only apply NativeWind in development, skip in production build
+if (process.env.NODE_ENV !== 'production') {
+  module.exports = withNativeWind(config, {
+    input: "./global.css",
+    forceWriteFileSystem: true,
+  });
+} else {
+  module.exports = config;
+}
