@@ -83,6 +83,19 @@ export default function LearnScreen() {
     setKey((k) => k + 1); // Force flashcard re-render
   }, [currentItem, progress, currentIndex, vocabulary.length]);
 
+  const handleVeryFamiliar = useCallback(async () => {
+    if (!currentItem) return;
+    // Mark as very familiar - treat like remember but with special flag
+    const newProgress = await markRemembered(currentItem.id, progress);
+    setProgress(newProgress);
+
+    // Move to next card
+    const nextIndex = (currentIndex + 1) % vocabulary.length;
+    setCurrentIndex(nextIndex);
+    await saveCurrentIndex(nextIndex);
+    setKey((k) => k + 1); // Force flashcard re-render
+  }, [currentItem, progress, currentIndex, vocabulary.length]);
+
   if (loading) {
     return (
       <ScreenContainer className="items-center justify-center">
@@ -124,6 +137,7 @@ export default function LearnScreen() {
           item={currentItem}
           onRemember={handleRemember}
           onForgot={handleForgot}
+          onVeryFamiliar={handleVeryFamiliar}
           forgotCount={forgotCount}
         />
       </View>

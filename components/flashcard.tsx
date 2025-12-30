@@ -24,6 +24,7 @@ interface FlashcardProps {
   item: VocabularyItem;
   onRemember: () => void;
   onForgot: () => void;
+  onVeryFamiliar?: () => void;
   forgotCount?: number;
 }
 
@@ -37,6 +38,7 @@ export function Flashcard({
   item,
   onRemember,
   onForgot,
+  onVeryFamiliar,
   forgotCount = 0,
 }: FlashcardProps) {
   const [revealed, setRevealed] = useState(false);
@@ -46,9 +48,11 @@ export function Flashcard({
 
   // Swipe gesture values
   const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
   const swipeOpacity = useSharedValue(0);
   const rememberOpacity = useSharedValue(0);
   const forgotOpacity = useSharedValue(0);
+  const familiarOpacity = useSharedValue(0);
 
   const handleReveal = useCallback(() => {
     if (!revealed) {
@@ -79,11 +83,33 @@ export function Flashcard({
     setRevealed(false);
     contentOpacity.value = 0;
     translateX.value = 0;
+    translateY.value = 0;
     swipeOpacity.value = 0;
     rememberOpacity.value = 0;
     forgotOpacity.value = 0;
+    familiarOpacity.value = 0;
     onRemember();
-  }, [onRemember, scale, contentOpacity, translateX, swipeOpacity, rememberOpacity, forgotOpacity]);
+  }, [onRemember, scale, contentOpacity, translateX, translateY, swipeOpacity, rememberOpacity, forgotOpacity, familiarOpacity]);
+
+  const handleVeryFamiliar = useCallback(() => {
+    if (Platform.OS !== "web") {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    scale.value = withSequence(
+      withTiming(0.97, { duration: 80 }),
+      withTiming(1, { duration: 80 })
+    );
+    // Reset state for next card
+    setRevealed(false);
+    contentOpacity.value = 0;
+    translateX.value = 0;
+    translateY.value = 0;
+    swipeOpacity.value = 0;
+    rememberOpacity.value = 0;
+    forgotOpacity.value = 0;
+    familiarOpacity.value = 0;
+    onVeryFamiliar?.();
+  }, [onVeryFamiliar, scale, contentOpacity, translateX, translateY, swipeOpacity, rememberOpacity, forgotOpacity, familiarOpacity]);
 
   const handleForgot = useCallback(() => {
     if (Platform.OS !== "web") {
@@ -97,11 +123,13 @@ export function Flashcard({
     setRevealed(false);
     contentOpacity.value = 0;
     translateX.value = 0;
+    translateY.value = 0;
     swipeOpacity.value = 0;
     rememberOpacity.value = 0;
     forgotOpacity.value = 0;
+    familiarOpacity.value = 0;
     onForgot();
-  }, [onForgot, scale, contentOpacity, translateX, swipeOpacity, rememberOpacity, forgotOpacity]);
+  }, [onForgot, scale, contentOpacity, translateX, translateY, swipeOpacity, rememberOpacity, forgotOpacity, familiarOpacity]);
 
 
   // Gesture handler for swipe actions
@@ -111,30 +139,51 @@ export function Flashcard({
     })
     .onUpdate((event) => {
       translateX.value = event.translationX;
+      translateY.value = event.translationY;
 
-      // Update visual feedback based on swipe direction
-      if (translateX.value > 0) {
-        // Swiping right (remember)
-        rememberOpacity.value = interpolate(
-          translateX.value,
-          [0, 100],
-          [0, 1],
-          Extrapolate.CLAMP
-        );
-        forgotOpacity.value = 0;
-      } else {
-        // Swiping left (forgot)
-        forgotOpacity.value = interpolate(
-          Math.abs(translateX.value),
-          [0, 100],
-          [0, 1],
-          Extrapolate.CLAMP
-        );
-        rememberOpacity.value = 0;
+      // Determine primary swipe direction
+      const absX = Math.abs(event.translationX);
+      const absY = Math.abs(event.translationY);
+
+      if (absY > absX && absY > 50) {
+        // Vertical swipe (down for very familiar)
+        if (translateY.value > 0) {
+          familiarOpacity.value = interpolate(
+            translateY.value,
+            [0, 100],
+            [0, 1],
+            Extrapolate.CLAMP
+          );
+          rememberOpacity.value = 0;
+          forgotOpacity.value = 0;
+        }
+      } else if (absX > absY && absX > 50) {
+        // Horizontal swipe
+        if (translateX.value > 0) {
+          // Swiping right (remember)
+          rememberOpacity.value = interpolate(
+            translateX.value,
+            [0, 100],
+            [0, 1],
+            Extrapolate.CLAMP
+          );
+          forgotOpacity.value = 0;
+          familiarOpacity.value = 0;
+        } else {
+          // Swiping left (forgot)
+          forgotOpacity.value = interpolate(
+            Math.abs(translateX.value),
+            [0, 100],
+            [0, 1],
+            Extrapolate.CLAMP
+          );
+          rememberOpacity.value = 0;
+          familiarOpacity.value = 0;
+        }
       }
 
       swipeOpacity.value = interpolate(
-        Math.abs(translateX.value),
+        Math.max(absX, absY),
         [0, 50],
         [0, 1],
         Extrapolate.CLAMP
@@ -142,8 +191,13 @@ export function Flashcard({
     })
     .onEnd((event) => {
       const threshold = 120; // Minimum swipe distance to trigger action
+      const absX = Math.abs(event.translationX);
+      const absY = Math.abs(event.translationY);
 
-      if (Math.abs(event.translationX) > threshold) {
+      if (absY > absX && absY > threshold && event.translationY > 0) {
+        // Swiped down - very familiar
+        runOnJS(handleVeryFamiliar)();
+      } else if (absX > absY && absX > threshold) {
         if (event.translationX > 0) {
           // Swiped right - remember
           runOnJS(handleRemember)();
@@ -154,9 +208,11 @@ export function Flashcard({
       } else {
         // Not enough swipe distance, reset position
         translateX.value = withTiming(0, { duration: 200 });
+        translateY.value = withTiming(0, { duration: 200 });
         swipeOpacity.value = withTiming(0, { duration: 200 });
         rememberOpacity.value = withTiming(0, { duration: 200 });
         forgotOpacity.value = withTiming(0, { duration: 200 });
+        familiarOpacity.value = withTiming(0, { duration: 200 });
       }
     });
 
@@ -164,6 +220,7 @@ export function Flashcard({
     transform: [
       { scale: scale.value },
       { translateX: translateX.value },
+      { translateY: translateY.value },
       {
         rotate: `${interpolate(
           translateX.value,
@@ -189,6 +246,10 @@ export function Flashcard({
 
   const forgotFeedbackStyle = useAnimatedStyle(() => ({
     opacity: forgotOpacity.value,
+  }));
+
+  const familiarFeedbackStyle = useAnimatedStyle(() => ({
+    opacity: familiarOpacity.value,
   }));
 
   const levelStyle = levelColors[item.level] || levelColors.A2;
@@ -315,8 +376,9 @@ export function Flashcard({
               style={animatedContentStyle}
               className="items-center mt-6"
             >
-              <Text className="text-sm text-muted">
-                Swipe left to forget, right to remember
+              <Text className="text-sm text-muted text-center">
+                Swipe left to forget, right to remember{"\n"}
+                Swipe down for very familiar words
               </Text>
             </Animated.View>
           )}
@@ -332,6 +394,10 @@ export function Flashcard({
         <Animated.View style={[styles.forgotFeedback, forgotFeedbackStyle]}>
           <MaterialIcons name="cancel" size={48} color="#F59E0B" />
           <Text style={styles.feedbackText}>Forgot</Text>
+        </Animated.View>
+        <Animated.View style={[styles.familiarFeedback, familiarFeedbackStyle]}>
+          <MaterialIcons name="star" size={48} color="#8B5CF6" />
+          <Text style={styles.feedbackText}>Very Familiar</Text>
         </Animated.View>
       </Animated.View>
     </Animated.View>
@@ -426,10 +492,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  familiarFeedback: {
+    position: 'absolute',
+    bottom: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   feedbackText: {
     color: 'white',
     fontWeight: '600',
     fontSize: 16,
     marginTop: 8,
+    textAlign: 'center',
   },
 });
