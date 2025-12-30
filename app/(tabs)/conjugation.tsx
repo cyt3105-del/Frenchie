@@ -90,6 +90,8 @@ const VERBS_DATA: VerbData[] = [
     difficulty: "beginner",
     conjugations: {
       present: ["suis", "es", "est", "sommes", "êtes", "sont"],
+      passéComposé: ["ai été", "as été", "a été", "avons été", "avez été", "ont été"],
+      imparfait: ["étais", "étais", "était", "étions", "étiez", "étaient"],
     },
   },
   {
@@ -100,6 +102,8 @@ const VERBS_DATA: VerbData[] = [
     difficulty: "beginner",
     conjugations: {
       present: ["ai", "as", "a", "avons", "avez", "ont"],
+      passéComposé: ["ai eu", "as eu", "a eu", "avons eu", "avez eu", "ont eu"],
+      imparfait: ["avais", "avais", "avait", "avions", "aviez", "avaient"],
     },
   },
   {
@@ -110,6 +114,8 @@ const VERBS_DATA: VerbData[] = [
     difficulty: "beginner",
     conjugations: {
       present: ["vais", "vas", "va", "allons", "allez", "vont"],
+      passéComposé: ["suis allé", "es allé", "est allé", "sommes allés", "êtes allés", "sont allés"],
+      imparfait: ["allais", "allais", "allait", "allions", "alliez", "allaient"],
     },
   },
   {
@@ -120,6 +126,8 @@ const VERBS_DATA: VerbData[] = [
     difficulty: "beginner",
     conjugations: {
       present: ["fais", "fais", "fait", "faisons", "faites", "font"],
+      passéComposé: ["ai fait", "as fait", "a fait", "avons fait", "avez fait", "ont fait"],
+      imparfait: ["faisais", "faisais", "faisait", "faisions", "faisiez", "faisaient"],
     },
   },
   {
@@ -130,6 +138,8 @@ const VERBS_DATA: VerbData[] = [
     difficulty: "beginner",
     conjugations: {
       present: ["viens", "viens", "vient", "venons", "venez", "viennent"],
+      passéComposé: ["suis venu", "es venu", "est venu", "sommes venus", "êtes venus", "sont venus"],
+      imparfait: ["venais", "venais", "venait", "venions", "veniez", "venaient"],
     },
   },
 
@@ -254,13 +264,13 @@ export default function ConjugationScreen() {
   const [streak, setStreak] = useState(0);
   const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
   const [currentDisplaySentence, setCurrentDisplaySentence] = useState<string>("");
-  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé">("present");
+  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé" | "imparfait">("present");
 
   const { speak } = useSpeech();
 
-  // Filter verbs by difficulty (if passé composé selected, include all verbs)
+  // Filter verbs by difficulty (if any past tense selected, include all verbs)
   const availableVerbs = useMemo(() => {
-    if (selectedTense === "passéComposé") {
+    if (selectedTense !== "present") {
       return VERBS_DATA;
     }
     return VERBS_DATA.filter(verb => verb.difficulty === selectedDifficulty);
@@ -596,7 +606,7 @@ export default function ConjugationScreen() {
 
       {/* Tense Selector */}
       <View className="flex-row gap-2 mb-6">
-        {(["present", "passéComposé"] as const).map((tense) => (
+        {(["present", "imparfait", "passéComposé"] as const).map((tense) => (
           <Pressable
             key={tense}
             onPress={() => setSelectedTense(tense)}
@@ -612,7 +622,7 @@ export default function ConjugationScreen() {
                 selectedTense === tense && styles.activeDifficultyButtonText,
               ]}
             >
-              {tense === "present" ? "Present" : "Passé composé"}
+              {tense === "present" ? "Present" : tense === "imparfait" ? "Imparfait" : "Passé composé"}
             </Text>
           </Pressable>
         ))}
