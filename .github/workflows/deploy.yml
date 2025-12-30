@@ -38,49 +38,26 @@ jobs:
 
       - name: Build
         run: |
-          echo "=== Build Debug Info ==="
-          echo "Node version: $(node --version)"
-          echo "NPM version: $(npm --version)"
-          echo "Working directory: $(pwd)"
-          echo "Environment: $CI"
-          echo ""
-          echo "=== Directory Contents ==="
-          ls -la
-          echo ""
-          echo "=== Installing Expo CLI ==="
+          echo "Starting Expo build..."
+          echo "Node: $(node --version), NPM: $(npm --version)"
+
+          # Install Expo CLI locally
           npm install @expo/cli --save-dev
-          echo "Expo CLI version: $(npx expo --version)"
-          echo ""
-          echo "=== Checking dependencies ==="
-          npm list @expo/cli expo
-          echo ""
-          echo "=== Starting build ==="
-          mkdir -p node_modules/react-native-css-interop/.cache
-          echo '/* CSS cache */' > node_modules/react-native-css-interop/.cache/web.css
-          echo "Cache file created"
-          echo ""
-          echo "=== Running expo export ==="
-          set -e  # Exit on any error
-          npx expo export --platform web --clear --output-dir dist 2>&1
-          BUILD_EXIT_CODE=$?
-          echo "Expo export exit code: $BUILD_EXIT_CODE"
-          if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "❌ Expo export failed with exit code $BUILD_EXIT_CODE"
-            echo "=== Trying alternative build method ==="
-            echo "Installing webpack and dependencies for manual build..."
-            npm install --save-dev webpack webpack-cli @expo/webpack-config html-webpack-plugin
-            echo "Running manual webpack build..."
-            npx webpack --mode production --config node_modules/@expo/webpack-config/webpack.config.js
-            echo "Manual build completed"
-            exit 0
+
+          # Use the exact build script from package.json
+          echo "Running npm run build:web..."
+          npm run build:web
+
+          # Verify build output
+          if [ -f "dist/index.html" ]; then
+            echo "✅ Build successful!"
+            ls -la dist/
+          else
+            echo "❌ Build failed - no index.html found"
+            echo "Contents of current directory:"
+            ls -la
+            exit 1
           fi
-          echo ""
-          echo "=== Build completed ==="
-          echo "Checking dist directory:"
-          ls -la dist/
-          echo ""
-          echo "Checking if index.html exists:"
-          test -f dist/index.html && echo "✅ index.html found" || echo "❌ index.html missing"
 
       - name: Check build output
         run: |
