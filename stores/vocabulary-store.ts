@@ -29,10 +29,17 @@ export function getShuffledVocabulary(): VocabularyItem[] {
 // Load progress from AsyncStorage
 export async function loadProgress(): Promise<ProgressData> {
   try {
-    const data = await AsyncStorage.getItem(PROGRESS_KEY);
+    // Add timeout for web environments
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Storage timeout")), 2000)
+    );
+
+    const dataPromise = AsyncStorage.getItem(PROGRESS_KEY);
+    const data = await Promise.race([dataPromise, timeoutPromise]);
+
     return data ? JSON.parse(data) : {};
   } catch (error) {
-    console.error("Error loading progress:", error);
+    console.warn("Error loading progress (using empty):", error);
     return {};
   }
 }
@@ -42,17 +49,24 @@ export async function saveProgress(progress: ProgressData): Promise<void> {
   try {
     await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
   } catch (error) {
-    console.error("Error saving progress:", error);
+    console.warn("Error saving progress:", error);
   }
 }
 
 // Load current index
 export async function loadCurrentIndex(): Promise<number> {
   try {
-    const data = await AsyncStorage.getItem(CURRENT_INDEX_KEY);
+    // Add timeout for web environments
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Storage timeout")), 2000)
+    );
+
+    const dataPromise = AsyncStorage.getItem(CURRENT_INDEX_KEY);
+    const data = await Promise.race([dataPromise, timeoutPromise]);
+
     return data ? parseInt(data, 10) : 0;
   } catch (error) {
-    console.error("Error loading current index:", error);
+    console.warn("Error loading current index (using 0):", error);
     return 0;
   }
 }
@@ -62,7 +76,7 @@ export async function saveCurrentIndex(index: number): Promise<void> {
   try {
     await AsyncStorage.setItem(CURRENT_INDEX_KEY, index.toString());
   } catch (error) {
-    console.error("Error saving current index:", error);
+    console.warn("Error saving current index:", error);
   }
 }
 

@@ -28,18 +28,43 @@ export default function LearnScreen() {
       if (initialLoadDone.current) return;
       initialLoadDone.current = true;
 
-      const [savedProgress, savedIndex] = await Promise.all([
-        loadProgress(),
-        loadCurrentIndex(),
-      ]);
-      const shuffled = getShuffledVocabulary();
-      setVocabulary(shuffled);
-      setProgress(savedProgress);
-      setCurrentIndex(savedIndex % shuffled.length);
-      setLoading(false);
+      try {
+        const [savedProgress, savedIndex] = await Promise.all([
+          loadProgress(),
+          loadCurrentIndex(),
+        ]);
+        const shuffled = getShuffledVocabulary();
+        setVocabulary(shuffled);
+        setProgress(savedProgress);
+        setCurrentIndex(savedIndex % shuffled.length);
+      } catch (error) {
+        console.error("Error loading data:", error);
+        // Fallback: load without saved data
+        const shuffled = getShuffledVocabulary();
+        setVocabulary(shuffled);
+        setProgress({});
+        setCurrentIndex(0);
+      } finally {
+        setLoading(false);
+      }
     }
+
+    // Add a timeout in case AsyncStorage hangs
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn("Loading timeout - using fallback");
+        const shuffled = getShuffledVocabulary();
+        setVocabulary(shuffled);
+        setProgress({});
+        setCurrentIndex(0);
+        setLoading(false);
+      }
+    }, 5000); // 5 second timeout
+
     init();
-  }, []);
+
+    return () => clearTimeout(timeout);
+  }, [loading]);
 
   const currentItem = vocabulary[currentIndex];
 
