@@ -2,6 +2,11 @@
   "buildCommand": "mkdir -p node_modules/react-native-css-interop/.cache && echo '/* CSS cache */' > node_modules/react-native-css-interop/.cache/web.css && npx expo export --platform web --clear",
   "outputDirectory": "dist",
   "installCommand": "npm install",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "env": {
     "NODE_ENV": "production",
     "EXPO_USE_METRO_WORKSPACE_ROOT": "1"
