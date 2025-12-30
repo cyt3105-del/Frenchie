@@ -279,6 +279,8 @@ export default function ConjugationScreen() {
     return options.sort(() => Math.random() - 0.5);
   }, []);
 
+  // Generate complete French sentences for verbs
+
   // Start new conjugation exercise
   const startNewExercise = useCallback(() => {
     if (availableVerbs.length === 0) return;
