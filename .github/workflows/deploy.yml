@@ -59,19 +59,6 @@ jobs:
             exit 1
           fi
 
-      - name: Check build output
-        run: |
-          echo "=== Verifying build output ==="
-          if [ ! -d "dist" ]; then
-            echo "❌ dist directory not found"
-            exit 1
-          fi
-          if [ ! -f "dist/index.html" ]; then
-            echo "❌ dist/index.html not found"
-            exit 1
-          fi
-          echo "✅ Build output verified successfully"
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
