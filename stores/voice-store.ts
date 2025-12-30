@@ -16,7 +16,7 @@ export interface VoiceOption {
 const PREFERRED_VOICES = [
   "Amelie",
   "Amélie",
-  "Daniel",
+  "Thomas",
 ];
 
 // Get all available French voices on the device, filtered to preferred voices
@@ -41,17 +41,17 @@ export async function getAvailableFrenchVoices(): Promise<VoiceOption[]> {
         quality: voice.quality || "Default",
       }));
     
-    // Return only the preferred voices (Amelie and Daniel)
-    
-    // Sort: Daniel first, then Amelie
+    // Return only the preferred voices (Amelie and Thomas)
+
+    // Sort: Amelie first, then Thomas
     frenchVoices.sort((a, b) => {
       const aName = a.name.toLowerCase();
       const bName = b.name.toLowerCase();
 
-      if (aName.includes("daniel")) return -1;
-      if (bName.includes("daniel")) return 1;
       if (aName.includes("amelie") || aName.includes("amélie")) return -1;
       if (bName.includes("amelie") || bName.includes("amélie")) return 1;
+      if (aName.includes("thomas")) return -1;
+      if (bName.includes("thomas")) return 1;
       return 0;
     });
     
@@ -109,7 +109,7 @@ export function getAvailableFrenchVoicesWeb(): VoiceOption[] {
   }
 
   const voices = window.speechSynthesis.getVoices();
-  const preferredNames = ["amelie", "amélie", "daniel"];
+  const preferredNames = ["amelie", "amélie", "thomas"];
 
   const frenchVoices = voices
     .filter((voice) => {
@@ -127,15 +127,15 @@ export function getAvailableFrenchVoicesWeb(): VoiceOption[] {
       quality: voice.localService ? "Enhanced" : "Default",
     }));
 
-  // Sort: Daniel first, then Amelie
+  // Sort: Amelie first, then Thomas
   frenchVoices.sort((a, b) => {
     const aName = a.name.toLowerCase();
     const bName = b.name.toLowerCase();
 
-    if (aName.includes("daniel")) return -1;
-    if (bName.includes("daniel")) return 1;
     if (aName.includes("amelie") || aName.includes("amélie")) return -1;
     if (bName.includes("amelie") || bName.includes("amélie")) return 1;
+    if (aName.includes("thomas")) return -1;
+    if (bName.includes("thomas")) return 1;
     return 0;
   });
 
