@@ -1,5 +1,5 @@
 {
-  "buildCommand": "rm -rf node_modules/.cache node_modules/react-native-css-interop/.cache && npx expo export --platform web --clear",
+  "buildCommand": "mkdir -p node_modules/react-native-css-interop/.cache && echo '/* CSS cache */' > node_modules/react-native-css-interop/.cache/web.css && npx expo export --platform web --clear",
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "env": {
