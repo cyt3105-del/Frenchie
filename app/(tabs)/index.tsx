@@ -24,47 +24,30 @@ export default function LearnScreen() {
   const initialLoadDone = useRef(false);
 
   useEffect(() => {
-    async function init() {
-      if (initialLoadDone.current) return;
-      initialLoadDone.current = true;
+    // Immediate loading - don't wait for AsyncStorage
+    const shuffled = getShuffledVocabulary();
+    setVocabulary(shuffled);
+    setProgress({});
+    setCurrentIndex(0);
+    setLoading(false);
 
+    // Try to load saved data in background (don't block UI)
+    async function loadSavedData() {
       try {
         const [savedProgress, savedIndex] = await Promise.all([
           loadProgress(),
           loadCurrentIndex(),
         ]);
-        const shuffled = getShuffledVocabulary();
-        setVocabulary(shuffled);
         setProgress(savedProgress);
         setCurrentIndex(savedIndex % shuffled.length);
       } catch (error) {
-        console.error("Error loading data:", error);
-        // Fallback: load without saved data
-        const shuffled = getShuffledVocabulary();
-        setVocabulary(shuffled);
-        setProgress({});
-        setCurrentIndex(0);
-      } finally {
-        setLoading(false);
+        console.warn("Could not load saved data:", error);
+        // Keep default values
       }
     }
 
-    // Add a timeout in case AsyncStorage hangs
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.warn("Loading timeout - using fallback");
-        const shuffled = getShuffledVocabulary();
-        setVocabulary(shuffled);
-        setProgress({});
-        setCurrentIndex(0);
-        setLoading(false);
-      }
-    }, 5000); // 5 second timeout
-
-    init();
-
-    return () => clearTimeout(timeout);
-  }, [loading]);
+    loadSavedData();
+  }, []);
 
   const currentItem = vocabulary[currentIndex];
 
