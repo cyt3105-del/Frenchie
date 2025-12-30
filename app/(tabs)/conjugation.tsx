@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -254,13 +254,18 @@ export default function ConjugationScreen() {
   const [streak, setStreak] = useState(0);
   const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
   const [currentDisplaySentence, setCurrentDisplaySentence] = useState<string>("");
+  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé">("present");
 
   const { speak } = useSpeech();
 
   // Filter verbs by difficulty
   const availableVerbs = useMemo(() => {
-    return VERBS_DATA.filter(verb => verb.difficulty === selectedDifficulty);
-  }, [selectedDifficulty]);
+    return VERBS_DATA.filter(verb => {
+      if (verb.difficulty !== selectedDifficulty) return false;
+      if (selectedTense === "present") return true;
+      return !!(verb.conjugations as any)[selectedTense];
+    });
+  }, [selectedDifficulty, selectedTense]);
 
   // Generate multiple choice options
   const generateMultipleChoice = useCallback((correctAnswer: string, allConjugations: string[]) => {
@@ -283,7 +288,9 @@ export default function ConjugationScreen() {
   // Generate complete French sentences for verbs
   const generateCompleteSentence = useCallback((verb: VerbData, pronounIndex: number): string => {
     const pronoun = PRONOUNS[pronounIndex];
-    const conjugation = verb.conjugations.present[pronounIndex];
+    const conjugation =
+      ((verb.conjugations as any)[selectedTense] && (verb.conjugations as any)[selectedTense][pronounIndex]) ||
+      verb.conjugations.present[pronounIndex];
 
     // Sentence templates for different verbs to create natural French sentences
     const sentenceTemplates: Record<string, string[]> = {
@@ -444,7 +451,7 @@ export default function ConjugationScreen() {
 
     // Return a random sentence for variety
     return sentences[Math.floor(Math.random() * sentences.length)];
-  }, []);
+  }, [selectedTense]);
 
   // Generate display sentence with blank for the verb
   const generateDisplaySentence = useCallback((verb: VerbData, pronounIndex: number): string => {
@@ -452,11 +459,13 @@ export default function ConjugationScreen() {
 
     // Use the same sentence template as complete sentence but replace conjugation with "__"
     const completeSentence = generateCompleteSentence(verb, pronounIndex);
-    const conjugation = verb.conjugations.present[pronounIndex];
+    const conjugation =
+      ((verb.conjugations as any)[selectedTense] && (verb.conjugations as any)[selectedTense][pronounIndex]) ||
+      verb.conjugations.present[pronounIndex];
 
     // Replace the conjugated verb with "__" in the sentence
     return completeSentence.replace(conjugation, '__');
-  }, [generateCompleteSentence]);
+  }, [generateCompleteSentence, selectedTense]);
 
   // Start new conjugation exercise
   const startNewExercise = useCallback(() => {
@@ -480,11 +489,11 @@ export default function ConjugationScreen() {
     setCurrentDisplaySentence(displaySentence);
 
     // Generate multiple choice options
-    const correctAnswer = randomVerb.conjugations.present[randomPronoun];
-    const allConjugations = randomVerb.conjugations.present;
+    const allConjugations = ((randomVerb.conjugations as any)[selectedTense] && (randomVerb.conjugations as any)[selectedTense]) || randomVerb.conjugations.present;
+    const correctAnswer = allConjugations[randomPronoun];
     setMultipleChoiceOptions(generateMultipleChoice(correctAnswer, allConjugations));
     setShowMultipleChoice(true);
-  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence, generateDisplaySentence]);
+  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence, generateDisplaySentence, selectedTense]);
 
   // Check answer
   const checkAnswer = useCallback((answer: string) => {
@@ -526,9 +535,9 @@ export default function ConjugationScreen() {
   }, [currentFullSentence, speak]);
 
   // Initialize first exercise
-  useState(() => {
+  useEffect(() => {
     startNewExercise();
-  });
+  }, [availableVerbs]);
 
   if (availableVerbs.length === 0) {
     return (
@@ -570,6 +579,30 @@ export default function ConjugationScreen() {
               ]}
             >
               {level.charAt(0).toUpperCase() + level.slice(1)}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Tense Selector */}
+      <View className="flex-row gap-2 mb-6">
+        {(["present", "passéComposé"] as const).map((tense) => (
+          <Pressable
+            key={tense}
+            onPress={() => setSelectedTense(tense)}
+            style={({ pressed }) => [
+              styles.difficultyButton,
+              selectedTense === tense && styles.activeDifficultyButton,
+              pressed && styles.pressedButton,
+            ]}
+          >
+            <Text
+              style={[
+                styles.difficultyButtonText,
+                selectedTense === tense && styles.activeDifficultyButtonText,
+              ]}
+            >
+              {tense === "present" ? "Present" : "Passé composé"}
             </Text>
           </Pressable>
         ))}
