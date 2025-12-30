@@ -8,8 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { VocabularyItem, Collection } from "@/data/vocabulary.js";
-import { vocabulary } from "@/data/vocabulary.js";
+import { VocabularyItem, Collection, vocabulary } from "@/data/vocabulary";
 import { cn } from "@/lib/utils";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 

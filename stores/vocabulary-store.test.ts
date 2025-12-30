@@ -4,7 +4,7 @@ import {
   getForgotList,
   ProgressData,
 } from "./vocabulary-store";
-import { vocabulary } from "../data/vocabulary.js";
+import { vocabulary } from "../data/vocabulary";
 
 // Mock AsyncStorage
 vi.mock("@react-native-async-storage/async-storage", () => ({

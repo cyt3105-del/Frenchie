@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { ScreenContainer } from "@/components/screen-container";
-import { VocabularyItem } from "@/data/vocabulary.js";
+import { VocabularyItem } from "@/data/vocabulary";
 import {
   loadProgress,
   getForgotList,

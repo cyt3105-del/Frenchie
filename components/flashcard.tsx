@@ -8,7 +8,7 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { VocabularyItem } from "../data/vocabulary.js";
+import { VocabularyItem } from "../data/vocabulary";
 import { cn } from "@/lib/utils";
 import { useSpeech } from "@/hooks/use-speech";
 

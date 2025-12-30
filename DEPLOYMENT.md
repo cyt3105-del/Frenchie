@@ -1,78 +1,37 @@
 # Deploying Frenchie App for Your Friends
 
-There are several ways to share your app with friends. Here are the best options:
+Your app is now deployed to GitHub Pages! Here's how it works and how to update it:
 
-## Option 1: Deploy to Vercel (Recommended - Free & Easy)
+## Current Deployment: GitHub Pages (Free & Automatic)
 
-Vercel is the easiest way to deploy and share your app. It's free and automatically updates when you push changes.
+Your app is live at: **https://cyt3105-del.github.io/Frenchie**
 
-### Quick Deploy (Recommended):
+### How It Works:
+- The app automatically builds and deploys when you push changes to GitHub
+- No server needed - it's a pure static client-side app
+- Uses your vocabulary data stored directly in the code
 
-Use the included deployment script:
+### To Update the App:
 
-```bash
-# Install Vercel CLI (one time)
-npm install -g vercel
+1. **Make your changes** to the code locally
 
-# Login to Vercel (one time)
-vercel login
-
-# Deploy with automatic setup
-./deploy-vercel.sh
-```
-
-### Manual Steps (Alternative):
-
-1. **Install Vercel CLI:**
-   ```bash
-   npm install -g vercel
-   ```
-
-2. **Login to Vercel:**
-   ```bash
-   vercel login
-   ```
-
-3. **Deploy:**
-   ```bash
-   ./deploy-vercel.sh
-   ```
-
-   Or manually:
+2. **Build for production:**
    ```bash
    npm run build:web
-   vercel --prod
    ```
 
-4. **Share the URL:**
-   - Vercel will give you a URL like: `https://frenchie-app.vercel.app`
-   - Share this URL with your friends!
-
-5. **For automatic updates:**
-   - Connect your GitHub repo to Vercel in the dashboard
-   - Every time you push changes, it auto-deploys
-
-## Option 2: Deploy to Netlify (Also Free & Easy)
-
-1. **Build the static website:**
+3. **Commit and push to GitHub:**
    ```bash
-   npx expo export:web
+   git add .
+   git commit -m "Your update message"
+   git push
    ```
 
-2. **Install Netlify CLI:**
-   ```bash
-   npm install -g netlify-cli
-   ```
+4. **That's it!** GitHub Actions will automatically build and deploy your changes
 
-3. **Deploy:**
-   ```bash
-   cd dist
-   netlify deploy --prod
-   ```
+## Other Sharing Options (If Needed)
 
-4. **Share the URL** that Netlify provides
-
-## Option 3: Quick Share with ngrok (Temporary)
+## Option 1: Quick Share with ngrok (Temporary)
 
 For quick testing/sharing without deployment:
 
@@ -95,29 +54,25 @@ For quick testing/sharing without deployment:
 4. **Share the ngrok URL** (e.g., `https://abc123.ngrok.io`)
    - Note: Free ngrok URLs change each time you restart
 
-## Option 4: GitHub Pages (Free Static Hosting)
+## Option 2: Local Network Sharing (Same WiFi)
 
-1. **Build the static website:**
+If you're all on the same WiFi network:
+
+1. **Find your local IP:**
    ```bash
-   npx expo export:web
+   # macOS
+   ipconfig getifaddr en0
+
+   # Or check System Settings → Network
    ```
 
-2. **Push to GitHub:**
+2. **Start the dev server:**
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin <your-github-repo-url>
-   git push -u origin main
+   npm run dev
    ```
 
-3. **Enable GitHub Pages:**
-   - Go to your repo → Settings → Pages
-   - Source: Deploy from branch
-   - Branch: main, folder: `/dist`
-   - Save
-
-4. **Share the URL:** `https://yourusername.github.io/frenchie-app`
+3. **Share the URL:** `http://YOUR_IP:8081`
+   - Example: `http://192.168.1.100:8081`
 
 ## Option 5: Local Network Sharing (Same WiFi)
 
