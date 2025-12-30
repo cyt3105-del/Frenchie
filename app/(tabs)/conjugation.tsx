@@ -258,14 +258,10 @@ export default function ConjugationScreen() {
 
   const { speak } = useSpeech();
 
-  // Filter verbs by difficulty
+  // Filter verbs by difficulty (don't exclude verbs that lack a tense; fall back later)
   const availableVerbs = useMemo(() => {
-    return VERBS_DATA.filter(verb => {
-      if (verb.difficulty !== selectedDifficulty) return false;
-      if (selectedTense === "present") return true;
-      return !!(verb.conjugations as any)[selectedTense];
-    });
-  }, [selectedDifficulty, selectedTense]);
+    return VERBS_DATA.filter(verb => verb.difficulty === selectedDifficulty);
+  }, [selectedDifficulty]);
 
   // Generate multiple choice options
   const generateMultipleChoice = useCallback((correctAnswer: string, allConjugations: string[]) => {
