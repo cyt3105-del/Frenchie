@@ -610,7 +610,7 @@ export default function ConjugationScreen() {
                     {word}{' '}
                   </Text>
                 ) : isBlank ? (
-                  <Text key={index} className="font-bold text-secondary bg-secondary/20 px-2 py-1 rounded border-2 border-dashed border-secondary">
+                  <Text key={index}>
                     {word}{' '}
                   </Text>
                 ) : (
