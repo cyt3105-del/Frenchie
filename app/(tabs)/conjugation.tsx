@@ -498,7 +498,9 @@ export default function ConjugationScreen() {
   const checkAnswer = useCallback((answer: string) => {
     if (!currentVerb) return;
 
-    const correctAnswer = currentVerb.conjugations.present[currentPronounIndex];
+    const allConjugations = ((currentVerb.conjugations as any)[selectedTense] &&
+      (currentVerb.conjugations as any)[selectedTense]) || currentVerb.conjugations.present;
+    const correctAnswer = allConjugations[currentPronounIndex];
     const correct = answer === correctAnswer;
 
     setIsCorrect(correct);
@@ -511,20 +513,29 @@ export default function ConjugationScreen() {
     } else {
       setStreak(0);
     }
-  }, [currentVerb, currentPronounIndex]);
+  }, [currentVerb, currentPronounIndex, selectedTense]);
 
   // Get tip for current verb
   const getTip = useCallback(() => {
     if (!currentVerb) return "";
 
-    const tips = {
+    if (selectedTense === "passéComposé") {
+      const tipsPast: Record<number, string> = {
+        1: "Passé composé (ER): Use auxiliary (avoir/être) + past participle (-é). Most verbs use avoir.",
+        2: "Passé composé (IR): Use auxiliary (avoir/être) + past participle (usually -i). Most verbs use avoir.",
+        3: "Passé composé (RE/irregular): Use auxiliary (avoir/être) + past participle (often -u or irregular). Watch for agreement with être.",
+      };
+      return tipsPast[currentVerb.group] || "Use auxiliary avoir or être + past participle; check agreement rules.";
+    }
+
+    const tipsPresent = {
       1: "ER verbs: Remove -er and add endings: -e, -es, -e, -ons, -ez, -ent",
       2: "IR verbs: Remove -ir and add endings: -is, -is, -it, -issons, -issez, -issent",
       3: "RE verbs: Remove -re and add endings: -s, -s, -t, -ons, -ez, -ent",
-    };
+    } as Record<number, string>;
 
-    return tips[currentVerb.group] || "Check the verb group and apply the correct endings.";
-  }, [currentVerb]);
+    return tipsPresent[currentVerb.group] || "Check the verb group and apply the correct endings.";
+  }, [currentVerb, selectedTense]);
 
   // Speak the current sentence being displayed
   const speakCorrectSentence = useCallback(() => {
