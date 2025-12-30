@@ -291,14 +291,17 @@ export default function ConjugationScreen() {
     setUserAnswer("");
     setShowResult(false);
     setShowTip(false);
-    setCurrentFullSentence(""); // Reset to show fill-in-the-blank
+
+    // Generate and show the complete sentence immediately
+    const completeSentence = generateCompleteSentence(randomVerb, randomPronoun);
+    setCurrentFullSentence(completeSentence);
 
     // Generate multiple choice options
     const correctAnswer = randomVerb.conjugations.present[randomPronoun];
     const allConjugations = randomVerb.conjugations.present;
     setMultipleChoiceOptions(generateMultipleChoice(correctAnswer, allConjugations));
     setShowMultipleChoice(true);
-  }, [availableVerbs, generateMultipleChoice]);
+  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence]);
 
   // Check answer
   const checkAnswer = useCallback((answer: string) => {
@@ -498,14 +501,12 @@ export default function ConjugationScreen() {
     return sentences[Math.floor(Math.random() * sentences.length)];
   }, []);
 
-  // Speak the correct sentence
+  // Speak the current sentence being displayed
   const speakCorrectSentence = useCallback(() => {
-    if (!currentVerb) return;
-
-    const sentence = generateCompleteSentence(currentVerb, currentPronounIndex);
-    setCurrentFullSentence(sentence);
-    speak(sentence);
-  }, [currentVerb, currentPronounIndex, speak, generateCompleteSentence]);
+    if (currentFullSentence) {
+      speak(currentFullSentence);
+    }
+  }, [currentFullSentence, speak]);
 
   // Initialize first exercise
   useState(() => {
@@ -582,7 +583,17 @@ export default function ConjugationScreen() {
           {/* Exercise */}
           <View className="items-center">
             <Text className="text-xl text-foreground mb-4">
-              {currentFullSentence || `${PRONOUNS[currentPronounIndex]} ___ (${currentVerb.infinitive})`}
+              {currentFullSentence.split(' ').map((word, index) => {
+                // Highlight the pronoun that needs conjugation
+                const isTargetPronoun = index === 0 && PRONOUNS.includes(word.toLowerCase());
+                return isTargetPronoun ? (
+                  <Text key={index} className="font-bold text-primary underline">
+                    {word}{' '}
+                  </Text>
+                ) : (
+                  <Text key={index}>{word}{' '}</Text>
+                );
+              })}
             </Text>
 
             {/* Multiple Choice */}
@@ -681,7 +692,7 @@ export default function ConjugationScreen() {
       {!showResult && (
         <View className="bg-muted/50 rounded-xl p-4">
           <Text className="text-sm text-muted text-center">
-            Choose the correct conjugation for the pronoun and infinitive shown above.
+            Listen to the sentence and choose the correct conjugation for the highlighted pronoun.
           </Text>
         </View>
       )}
