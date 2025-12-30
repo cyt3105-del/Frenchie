@@ -751,7 +751,7 @@ export default function ConjugationScreen() {
       {!showResult && (
         <View className="bg-muted/50 rounded-xl p-4">
           <Text className="text-sm text-muted text-center">
-            Listen to the sentence and choose the correct conjugation for the highlighted pronoun.
+            Choose the correct conjugation for the highlighted pronoun.
           </Text>
         </View>
       )}
