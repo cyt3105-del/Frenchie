@@ -74,29 +74,23 @@ If you're all on the same WiFi network:
 3. **Share the URL:** `http://YOUR_IP:8081`
    - Example: `http://192.168.1.100:8081`
 
-## Option 5: Local Network Sharing (Same WiFi)
+## How Auto-Deploy Works
 
-If you're all on the same WiFi network:
+The app uses **GitHub Actions** for automatic deployment:
 
-1. **Find your local IP:**
-   ```bash
-   # macOS
-   ipconfig getifaddr en0
-   
-   # Or check System Settings → Network
-   ```
+1. **Push your changes** to the `main` branch
+2. **GitHub Actions automatically:**
+   - Installs Node.js and dependencies
+   - Builds the web app (`npm run build:web`)
+   - Deploys to GitHub Pages
+3. **Your app is live** within 2-3 minutes!
 
-2. **Start the dev server:**
-   ```bash
-   npm run dev
-   ```
+### Checking Deployment Status
 
-3. **Share the URL:** `http://YOUR_IP:8081`
-   - Example: `http://192.168.1.100:8081`
-
-## Recommended: Vercel Deployment Script
-
-I'll create a simple deployment script for you!
+- Go to your GitHub repo → **Actions** tab
+- Click on the latest workflow run
+- Watch the build and deploy progress
+- Green checkmark = successful deployment
 
 
 
