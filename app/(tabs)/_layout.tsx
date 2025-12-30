@@ -51,7 +51,7 @@ export default function TabLayout() {
         options={{
           title: "Conjugate",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="character.cursor.ibeam" color={color} />
+            <IconSymbol size={28} name="textformat.abc" color={color} />
           ),
         }}
       />
