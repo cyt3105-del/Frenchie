@@ -252,6 +252,7 @@ export default function ConjugationScreen() {
   const [showTip, setShowTip] = useState(false);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
 
   const { speak } = useSpeech();
 
@@ -290,6 +291,7 @@ export default function ConjugationScreen() {
     setUserAnswer("");
     setShowResult(false);
     setShowTip(false);
+    setCurrentFullSentence(""); // Reset to show fill-in-the-blank
 
     // Generate multiple choice options
     const correctAnswer = randomVerb.conjugations.present[randomPronoun];
@@ -501,6 +503,7 @@ export default function ConjugationScreen() {
     if (!currentVerb) return;
 
     const sentence = generateCompleteSentence(currentVerb, currentPronounIndex);
+    setCurrentFullSentence(sentence);
     speak(sentence);
   }, [currentVerb, currentPronounIndex, speak, generateCompleteSentence]);
 
@@ -579,7 +582,7 @@ export default function ConjugationScreen() {
           {/* Exercise */}
           <View className="items-center">
             <Text className="text-xl text-foreground mb-4">
-              {PRONOUNS[currentPronounIndex]} ___ ({currentVerb.infinitive})
+              {currentFullSentence || `${PRONOUNS[currentPronounIndex]} ___ (${currentVerb.infinitive})`}
             </Text>
 
             {/* Multiple Choice */}
