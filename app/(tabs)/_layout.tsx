@@ -47,6 +47,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="conjugation"
+        options={{
+          title: "Conjugate",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="puzzlepiece.fill" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="collections"
         options={{
           title: "Collections",
