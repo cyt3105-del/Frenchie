@@ -258,9 +258,6 @@ export default function ReviewScreen() {
     );
   }
 
-  const currentList = activeTab === 'forgot' ? forgotList : familiarList;
-  const currentCount = activeTab === 'forgot' ? forgotList.length : familiarList.length;
-
   return (
     <ScreenContainer>
       {/* Header */}
@@ -309,38 +306,62 @@ export default function ReviewScreen() {
         </Pressable>
       </View>
 
-      {currentCount === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-6xl mb-4">
-            {activeTab === 'forgot' ? '🎉' : '⭐'}
-          </Text>
-          <Text className="text-xl font-semibold text-foreground text-center mb-2">
-            {activeTab === 'forgot'
-              ? 'Great job!'
-              : 'All words mastered!'}
-          </Text>
-          <Text className="text-sm text-muted text-center leading-5">
-            {activeTab === 'forgot'
-              ? "You haven't forgotten any words yet.\nKeep learning in the Learn tab!"
-              : "Words you marked as very familiar.\nThey'll stay here until you restore them."}
-          </Text>
-        </View>
+      {activeTab === 'forgot' ? (
+        forgotList.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-6xl mb-4">🎉</Text>
+            <Text className="text-xl font-semibold text-foreground text-center mb-2">
+              Great job!
+            </Text>
+            <Text className="text-sm text-muted text-center leading-5">
+              You haven't forgotten any words yet.{"\n"}Keep learning in the Learn tab!
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={forgotList}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor="#0055A4"
+              />
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        )
       ) : (
-        <FlatList
-          data={currentList}
-          renderItem={activeTab === 'forgot' ? renderItem : renderFamiliarItem}
-          keyExtractor={activeTab === 'forgot' ? keyExtractor : (item) => item.id}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#0055A4"
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        />
+        familiarList.length === 0 ? (
+          <View className="flex-1 items-center justify-center px-6">
+            <Text className="text-6xl mb-4">⭐</Text>
+            <Text className="text-xl font-semibold text-foreground text-center mb-2">
+              All words mastered!
+            </Text>
+            <Text className="text-sm text-muted text-center leading-5">
+              Words you marked as very familiar.{"\n"}They'll stay here until you restore them.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={familiarList}
+            renderItem={renderFamiliarItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.listContent}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor="#0055A4"
+              />
+            }
+            showsVerticalScrollIndicator={false}
+          />
+        )
       )}
     </ScreenContainer>
   );
