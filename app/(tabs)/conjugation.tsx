@@ -698,7 +698,9 @@ export default function ConjugationScreen() {
                 {!isCorrect && (
                   <Text className="text-base text-foreground mb-4">
                     Correct answer: <Text className="font-bold text-primary">
-                      {currentVerb.conjugations.present[currentPronounIndex]}
+                      {(((currentVerb?.conjugations as any)[selectedTense] &&
+                        (currentVerb?.conjugations as any)[selectedTense][currentPronounIndex]) ||
+                        currentVerb?.conjugations.present[currentPronounIndex]) ?? ""}
                     </Text>
                   </Text>
                 )}
