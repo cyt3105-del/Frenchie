@@ -253,6 +253,7 @@ export default function ConjugationScreen() {
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
+  const [currentDisplaySentence, setCurrentDisplaySentence] = useState<string>("");
 
   const { speak } = useSpeech();
 
@@ -445,6 +446,184 @@ export default function ConjugationScreen() {
     return sentences[Math.floor(Math.random() * sentences.length)];
   }, []);
 
+  // Generate display sentence with blank for the verb
+  const generateDisplaySentence = useCallback((verb: VerbData, pronounIndex: number): string => {
+    const pronoun = PRONOUNS[pronounIndex];
+
+    // Use the same sentence template as complete sentence but replace conjugation with "__"
+    const completeSentence = generateCompleteSentence(verb, pronounIndex);
+    const conjugation = verb.conjugations.present[pronounIndex];
+
+    // Replace the conjugated verb with "__" in the sentence
+    return completeSentence.replace(conjugation, '__');
+  }, [generateCompleteSentence]);
+
+  // Generate complete French sentences for verbs
+  const generateCompleteSentence = useCallback((verb: VerbData, pronounIndex: number): string => {
+    const pronoun = PRONOUNS[pronounIndex];
+    const conjugation = verb.conjugations.present[pronounIndex];
+
+    // Sentence templates for different verbs to create natural French sentences
+    const sentenceTemplates: Record<string, string[]> = {
+      // Food/eating verbs
+      "manger": [
+        `${pronoun} ${conjugation} une pomme.`,
+        `${pronoun} ${conjugation} du pain.`,
+        `${pronoun} ${conjugation} des légumes.`,
+        `${pronoun} ${conjugation} au restaurant.`,
+        `${pronoun} ${conjugation} avec plaisir.`,
+        `${pronoun} ${conjugation} trop vite.`
+      ],
+      "boire": [
+        `${pronoun} ${conjugation} de l'eau.`,
+        `${pronoun} ${conjugation} du café.`,
+        `${pronoun} ${conjugation} du jus d'orange.`,
+        `${pronoun} ${conjugation} lentement.`,
+        `${pronoun} ${conjugation} à la santé de quelqu'un.`,
+        `${pronoun} ${conjugation} dans un verre.`
+      ],
+      // Movement verbs
+      "aller": [
+        `${pronoun} ${conjugation} à l'école.`,
+        `${pronoun} ${conjugation} au cinéma.`,
+        `${pronoun} ${conjugation} en ville.`,
+        `${pronoun} ${conjugation} chez des amis.`,
+        `${pronoun} ${conjugation} se promener.`,
+        `${pronoun} ${conjugation} faire les courses.`
+      ],
+      "venir": [
+        `${pronoun} ${conjugation} de Paris.`,
+        `${pronoun} ${conjugation} à la fête.`,
+        `${pronoun} ${conjugation} me voir.`,
+        `${pronoun} ${conjugation} d'Italie.`,
+        `${pronoun} ${conjugation} nous aider.`,
+        `${pronoun} ${conjugation} avec nous.`
+      ],
+      // Action verbs
+      "parler": [
+        `${pronoun} ${conjugation} français.`,
+        `${pronoun} ${conjugation} anglais.`,
+        `${pronoun} ${conjugation} avec ses amis.`,
+        `${pronoun} ${conjugation} de voyages.`,
+        `${pronoun} ${conjugation} au téléphone.`,
+        `${pronoun} ${conjugation} trop fort.`
+      ],
+      "habiter": [
+        `${pronoun} ${conjugation} à Paris.`,
+        `${pronoun} ${conjugation} dans un appartement.`,
+        `${pronoun} ${conjugation} près de l'école.`,
+        `${pronoun} ${conjugation} avec sa famille.`,
+        `${pronoun} ${conjugation} au centre-ville.`,
+        `${pronoun} ${conjugation} depuis longtemps.`
+      ],
+      "aimer": [
+        `${pronoun} ${conjugation} la musique.`,
+        `${pronoun} ${conjugation} voyager.`,
+        `${pronoun} ${conjugation} ses amis.`,
+        `${pronoun} ${conjugation} beaucoup.`,
+        `${pronoun} ${conjugation} le chocolat.`,
+        `${pronoun} ${conjugation} faire du sport.`
+      ],
+      "finir": [
+        `${pronoun} ${conjugation} ses devoirs.`,
+        `${pronoun} ${conjugation} le travail.`,
+        `${pronoun} ${conjugation} tard.`,
+        `${pronoun} ${conjugation} bientôt.`,
+        `${pronoun} ${conjugation} à temps.`,
+        `${pronoun} ${conjugation} toujours en retard.`
+      ],
+      "prendre": [
+        `${pronoun} ${conjugation} le bus.`,
+        `${pronoun} ${conjugation} une douche.`,
+        `${pronoun} ${conjugation} le petit-déjeuner.`,
+        `${pronoun} ${conjugation} des photos.`,
+        `${pronoun} ${conjugation} du temps.`,
+        `${pronoun} ${conjugation} rendez-vous.`
+      ],
+      "voir": [
+        `${pronoun} ${conjugation} un film.`,
+        `${pronoun} ${conjugation} ses amis.`,
+        `${pronoun} ${conjugation} la télé.`,
+        `${pronoun} ${conjugation} bien.`,
+        `${pronoun} ${conjugation} souvent.`,
+        `${pronoun} ${conjugation} des étoiles.`
+      ],
+      "travailler": [
+        `${pronoun} ${conjugation} dur.`,
+        `${pronoun} ${conjugation} à l'ordinateur.`,
+        `${pronoun} ${conjugation} dans un bureau.`,
+        `${pronoun} ${conjugation} tous les jours.`,
+        `${pronoun} ${conjugation} beaucoup.`,
+        `${pronoun} ${conjugation} la nuit.`
+      ],
+      "jouer": [
+        `${pronoun} ${conjugation} au football.`,
+        `${pronoun} ${conjugation} du piano.`,
+        `${pronoun} ${conjugation} aux jeux vidéo.`,
+        `${pronoun} ${conjugation} dehors.`,
+        `${pronoun} ${conjugation} avec des amis.`,
+        `${pronoun} ${conjugation} bien.`
+      ],
+      // Learning verbs
+      "apprendre": [
+        `${pronoun} ${conjugation} le français.`,
+        `${pronoun} ${conjugation} à nager.`,
+        `${pronoun} ${conjugation} par cœur.`,
+        `${pronoun} ${conjugation} vite.`,
+        `${pronoun} ${conjugation} l'anglais.`,
+        `${pronoun} ${conjugation} facilement.`
+      ],
+      "lire": [
+        `${pronoun} ${conjugation} un livre.`,
+        `${pronoun} ${conjugation} le journal.`,
+        `${pronoun} ${conjugation} des romans.`,
+        `${pronoun} ${conjugation} lentement.`,
+        `${pronoun} ${conjugation} en français.`,
+        `${pronoun} ${conjugation} tous les jours.`
+      ],
+      "écrire": [
+        `${pronoun} ${conjugation} une lettre.`,
+        `${pronoun} ${conjugation} des emails.`,
+        `${pronoun} ${conjugation} un roman.`,
+        `${pronoun} ${conjugation} au tableau.`,
+        `${pronoun} ${conjugation} bien.`,
+        `${pronoun} ${conjugation} vite.`
+      ],
+      // State verbs
+      "être": [
+        `${pronoun} ${conjugation} heureux.`,
+        `${pronoun} ${conjugation} fatigué.`,
+        `${pronoun} ${conjugation} à la maison.`,
+        `${pronoun} ${conjugation} content.`,
+        `${pronoun} ${conjugation} malade.`,
+        `${pronoun} ${conjugation} en retard.`
+      ],
+      "avoir": [
+        `${pronoun} ${conjugation} faim.`,
+        `${pronoun} ${conjugation} froid.`,
+        `${pronoun} ${conjugation} raison.`,
+        `${pronoun} ${conjugation} sommeil.`,
+        `${pronoun} ${conjugation} peur.`,
+        `${pronoun} ${conjugation} besoin d'aide.`
+      ],
+      // Default templates for other verbs
+      "default": [
+        `${pronoun} ${conjugation} souvent.`,
+        `${pronoun} ${conjugation} bien.`,
+        `${pronoun} ${conjugation} ici.`,
+        `${pronoun} ${conjugation} maintenant.`,
+        `${pronoun} ${conjugation} toujours.`,
+        `${pronoun} ${conjugation} beaucoup.`
+      ]
+    };
+
+    // Get sentences for this verb, or use default
+    const sentences = sentenceTemplates[verb.infinitive] || sentenceTemplates["default"];
+
+    // Return a random sentence for variety
+    return sentences[Math.floor(Math.random() * sentences.length)];
+  }, []);
+
   // Start new conjugation exercise
   const startNewExercise = useCallback(() => {
     if (availableVerbs.length === 0) return;
@@ -462,12 +641,16 @@ export default function ConjugationScreen() {
     const completeSentence = generateCompleteSentence(randomVerb, randomPronoun);
     setCurrentFullSentence(completeSentence);
 
+    // Generate display sentence with blank for the verb
+    const displaySentence = generateDisplaySentence(randomVerb, randomPronoun);
+    setCurrentDisplaySentence(displaySentence);
+
     // Generate multiple choice options
     const correctAnswer = randomVerb.conjugations.present[randomPronoun];
     const allConjugations = randomVerb.conjugations.present;
     setMultipleChoiceOptions(generateMultipleChoice(correctAnswer, allConjugations));
     setShowMultipleChoice(true);
-  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence]);
+  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence, generateDisplaySentence]);
 
   // Check answer
   const checkAnswer = useCallback((answer: string) => {
@@ -583,11 +766,17 @@ export default function ConjugationScreen() {
           {/* Exercise */}
           <View className="items-center">
             <Text className="text-xl text-foreground mb-4">
-              {currentFullSentence.split(' ').map((word, index) => {
+              {currentDisplaySentence.split(' ').map((word, index) => {
                 // Highlight the pronoun that needs conjugation
                 const isTargetPronoun = index === 0 && PRONOUNS.includes(word.toLowerCase());
+                // Highlight the blank (__) with special styling
+                const isBlank = word === '__';
                 return isTargetPronoun ? (
                   <Text key={index} className="font-bold text-primary underline">
+                    {word}{' '}
+                  </Text>
+                ) : isBlank ? (
+                  <Text key={index} className="font-bold text-secondary bg-secondary/20 px-2 py-1 rounded border-2 border-dashed border-secondary">
                     {word}{' '}
                   </Text>
                 ) : (
