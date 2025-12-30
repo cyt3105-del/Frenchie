@@ -258,10 +258,13 @@ export default function ConjugationScreen() {
 
   const { speak } = useSpeech();
 
-  // Filter verbs by difficulty (don't exclude verbs that lack a tense; fall back later)
+  // Filter verbs by difficulty (if passé composé selected, include all verbs)
   const availableVerbs = useMemo(() => {
+    if (selectedTense === "passéComposé") {
+      return VERBS_DATA;
+    }
     return VERBS_DATA.filter(verb => verb.difficulty === selectedDifficulty);
-  }, [selectedDifficulty]);
+  }, [selectedDifficulty, selectedTense]);
 
   // Generate multiple choice options
   const generateMultipleChoice = useCallback((correctAnswer: string, allConjugations: string[]) => {
