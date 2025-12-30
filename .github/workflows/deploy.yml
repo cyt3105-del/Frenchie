@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Setup Pages
@@ -34,18 +34,66 @@ jobs:
         run: npm ci
 
       - name: Install Expo CLI
-        run: npm install -g @expo/cli
-
-      - name: Setup Expo
-        run: npx expo install --fix
+        run: npm install -g @expo/cli@latest
 
       - name: Build
         run: |
-          echo "Starting build process..."
+          echo "=== Build Debug Info ==="
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
+          echo "Working directory: $(pwd)"
+          echo "Environment: $CI"
+          echo ""
+          echo "=== Directory Contents ==="
+          ls -la
+          echo ""
+          echo "=== Installing Expo CLI ==="
+          npm install @expo/cli --save-dev
           echo "Expo CLI version: $(npx expo --version)"
-          CI=false npm run build:web
+          echo ""
+          echo "=== Checking dependencies ==="
+          npm list @expo/cli expo
+          echo ""
+          echo "=== Starting build ==="
+          mkdir -p node_modules/react-native-css-interop/.cache
+          echo '/* CSS cache */' > node_modules/react-native-css-interop/.cache/web.css
+          echo "Cache file created"
+          echo ""
+          echo "=== Running expo export ==="
+          set -e  # Exit on any error
+          npx expo export --platform web --clear --output-dir dist 2>&1
+          BUILD_EXIT_CODE=$?
+          echo "Expo export exit code: $BUILD_EXIT_CODE"
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "❌ Expo export failed with exit code $BUILD_EXIT_CODE"
+            echo "=== Trying alternative build method ==="
+            echo "Installing webpack and dependencies for manual build..."
+            npm install --save-dev webpack webpack-cli @expo/webpack-config html-webpack-plugin
+            echo "Running manual webpack build..."
+            npx webpack --mode production --config node_modules/@expo/webpack-config/webpack.config.js
+            echo "Manual build completed"
+            exit 0
+          fi
+          echo ""
+          echo "=== Build completed ==="
+          echo "Checking dist directory:"
+          ls -la dist/
+          echo ""
+          echo "Checking if index.html exists:"
+          test -f dist/index.html && echo "✅ index.html found" || echo "❌ index.html missing"
+
+      - name: Check build output
+        run: |
+          echo "=== Verifying build output ==="
+          if [ ! -d "dist" ]; then
+            echo "❌ dist directory not found"
+            exit 1
+          fi
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ dist/index.html not found"
+            exit 1
+          fi
+          echo "✅ Build output verified successfully"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
