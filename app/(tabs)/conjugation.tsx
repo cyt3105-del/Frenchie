@@ -264,6 +264,7 @@ export default function ConjugationScreen() {
   const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
   const [currentDisplaySentence, setCurrentDisplaySentence] = useState<string>("");
   const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé" | "futurSimple">("present");
+  const [usedTense, setUsedTense] = useState<"present" | "passéComposé" | "futurSimple">("present");
 
   const { speak } = useSpeech();
 
@@ -291,10 +292,11 @@ export default function ConjugationScreen() {
   }, []);
 
   // Generate complete French sentences for verbs
-  const generateCompleteSentence = useCallback((verb: VerbData, pronounIndex: number): string => {
+  const generateCompleteSentence = useCallback((verb: VerbData, pronounIndex: number, tenseOverride?: "present" | "passéComposé" | "futurSimple"): string => {
     const pronoun = PRONOUNS[pronounIndex];
+    const tenseToUse = tenseOverride || usedTense;
     const conjugation =
-      ((verb.conjugations as any)[selectedTense] && (verb.conjugations as any)[selectedTense][pronounIndex]) ||
+      ((verb.conjugations as any)[tenseToUse] && (verb.conjugations as any)[tenseToUse][pronounIndex]) ||
       verb.conjugations.present[pronounIndex];
 
     // Sentence templates for different verbs to create natural French sentences
@@ -456,21 +458,22 @@ export default function ConjugationScreen() {
 
     // Return a random sentence for variety
     return sentences[Math.floor(Math.random() * sentences.length)];
-  }, [selectedTense]);
+  }, [usedTense]);
 
   // Generate display sentence with blank for the verb
-  const generateDisplaySentence = useCallback((verb: VerbData, pronounIndex: number): string => {
+  const generateDisplaySentence = useCallback((verb: VerbData, pronounIndex: number, tenseOverride?: "present" | "passéComposé" | "futurSimple"): string => {
     const pronoun = PRONOUNS[pronounIndex];
 
     // Use the same sentence template as complete sentence but replace conjugation with "__"
-    const completeSentence = generateCompleteSentence(verb, pronounIndex);
+    const completeSentence = generateCompleteSentence(verb, pronounIndex, tenseOverride);
+    const tenseToUse = tenseOverride || usedTense;
     const conjugation =
-      ((verb.conjugations as any)[selectedTense] && (verb.conjugations as any)[selectedTense][pronounIndex]) ||
+      ((verb.conjugations as any)[tenseToUse] && (verb.conjugations as any)[tenseToUse][pronounIndex]) ||
       verb.conjugations.present[pronounIndex];
 
     // Replace the conjugated verb with "__" in the sentence
     return completeSentence.replace(conjugation, '__');
-  }, [generateCompleteSentence, selectedTense]);
+  }, [generateCompleteSentence, usedTense]);
 
   // Start new conjugation exercise
   const startNewExercise = useCallback(() => {
@@ -486,15 +489,19 @@ export default function ConjugationScreen() {
     setShowTip(false);
 
     // Generate and show the complete sentence immediately
-    const completeSentence = generateCompleteSentence(randomVerb, randomPronoun);
+    // decide which tense we'll actually use for this exercise (fall back to present if verb lacks the selected tense)
+    const tenseToUse = ((randomVerb.conjugations as any)[selectedTense]) ? selectedTense : "present";
+    setUsedTense(tenseToUse);
+
+    const completeSentence = generateCompleteSentence(randomVerb, randomPronoun, tenseToUse);
     setCurrentFullSentence(completeSentence);
 
     // Generate display sentence with blank for the verb
-    const displaySentence = generateDisplaySentence(randomVerb, randomPronoun);
+    const displaySentence = generateDisplaySentence(randomVerb, randomPronoun, tenseToUse);
     setCurrentDisplaySentence(displaySentence);
 
     // Generate multiple choice options
-    const allConjugations = ((randomVerb.conjugations as any)[selectedTense] && (randomVerb.conjugations as any)[selectedTense]) || randomVerb.conjugations.present;
+    const allConjugations = ((randomVerb.conjugations as any)[tenseToUse] && (randomVerb.conjugations as any)[tenseToUse]) || randomVerb.conjugations.present;
     const correctAnswer = allConjugations[randomPronoun];
     setMultipleChoiceOptions(generateMultipleChoice(correctAnswer, allConjugations));
     setShowMultipleChoice(true);
@@ -504,8 +511,8 @@ export default function ConjugationScreen() {
   const checkAnswer = useCallback((answer: string) => {
     if (!currentVerb) return;
 
-    const allConjugations = ((currentVerb.conjugations as any)[selectedTense] &&
-      (currentVerb.conjugations as any)[selectedTense]) || currentVerb.conjugations.present;
+    const allConjugations = ((currentVerb.conjugations as any)[usedTense] &&
+      (currentVerb.conjugations as any)[usedTense]) || currentVerb.conjugations.present;
     const correctAnswer = allConjugations[currentPronounIndex];
     const correct = answer === correctAnswer;
 
@@ -525,7 +532,8 @@ export default function ConjugationScreen() {
   const getTip = useCallback(() => {
     if (!currentVerb) return "";
 
-    if (selectedTense === "passéComposé") {
+    const tipTense = usedTense || selectedTense;
+    if (tipTense === "passéComposé") {
       const tipsPast: Record<number, string> = {
         1: "Passé composé (ER): Use auxiliary (avoir/être) + past participle (-é). Most verbs use avoir.",
         2: "Passé composé (IR): Use auxiliary (avoir/être) + past participle (usually -i). Most verbs use avoir.",
@@ -534,7 +542,7 @@ export default function ConjugationScreen() {
       return tipsPast[currentVerb.group] || "Use auxiliary avoir or être + past participle; check agreement rules.";
     }
 
-    if (selectedTense === "futurSimple") {
+    if (tipTense === "futurSimple") {
       const tipsFuture: Record<number, string> = {
         1: "Futur simple (ER): use infinitive + ai/as/a/ons/ez/ont (e.g., je parlerai).",
         2: "Futur simple (IR): use infinitive + ai/as/a/ons/ez/ont (e.g., je finirai).",
