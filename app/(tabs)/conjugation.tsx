@@ -279,63 +279,6 @@ export default function ConjugationScreen() {
     return options.sort(() => Math.random() - 0.5);
   }, []);
 
-
-  // Start new conjugation exercise
-  const startNewExercise = useCallback(() => {
-    if (availableVerbs.length === 0) return;
-
-    const randomVerb = availableVerbs[Math.floor(Math.random() * availableVerbs.length)];
-    const randomPronoun = Math.floor(Math.random() * PRONOUNS.length);
-
-    setCurrentVerb(randomVerb);
-    setCurrentPronounIndex(randomPronoun);
-    setUserAnswer("");
-    setShowResult(false);
-    setShowTip(false);
-
-    // Generate and show the complete sentence immediately
-    const completeSentence = generateCompleteSentence(randomVerb, randomPronoun);
-    setCurrentFullSentence(completeSentence);
-
-    // Generate multiple choice options
-    const correctAnswer = randomVerb.conjugations.present[randomPronoun];
-    const allConjugations = randomVerb.conjugations.present;
-    setMultipleChoiceOptions(generateMultipleChoice(correctAnswer, allConjugations));
-    setShowMultipleChoice(true);
-  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence]);
-
-  // Check answer
-  const checkAnswer = useCallback((answer: string) => {
-    if (!currentVerb) return;
-
-    const correctAnswer = currentVerb.conjugations.present[currentPronounIndex];
-    const correct = answer === correctAnswer;
-
-    setIsCorrect(correct);
-    setShowResult(true);
-    setShowMultipleChoice(false);
-
-    if (correct) {
-      setScore(prev => prev + 10);
-      setStreak(prev => prev + 1);
-    } else {
-      setStreak(0);
-    }
-  }, [currentVerb, currentPronounIndex]);
-
-  // Get tip for current verb
-  const getTip = useCallback(() => {
-    if (!currentVerb) return "";
-
-    const tips = {
-      1: "ER verbs: Remove -er and add endings: -e, -es, -e, -ons, -ez, -ent",
-      2: "IR verbs: Remove -ir and add endings: -is, -is, -it, -issons, -issez, -issent",
-      3: "RE verbs: Remove -re and add endings: -s, -s, -t, -ons, -ez, -ent",
-    };
-
-    return tips[currentVerb.group] || "Check the verb group and apply the correct endings.";
-  }, [currentVerb]);
-
   // Generate complete French sentences for verbs
   const generateCompleteSentence = useCallback((verb: VerbData, pronounIndex: number): string => {
     const pronoun = PRONOUNS[pronounIndex];
@@ -501,6 +444,62 @@ export default function ConjugationScreen() {
     // Return a random sentence for variety
     return sentences[Math.floor(Math.random() * sentences.length)];
   }, []);
+
+  // Start new conjugation exercise
+  const startNewExercise = useCallback(() => {
+    if (availableVerbs.length === 0) return;
+
+    const randomVerb = availableVerbs[Math.floor(Math.random() * availableVerbs.length)];
+    const randomPronoun = Math.floor(Math.random() * PRONOUNS.length);
+
+    setCurrentVerb(randomVerb);
+    setCurrentPronounIndex(randomPronoun);
+    setUserAnswer("");
+    setShowResult(false);
+    setShowTip(false);
+
+    // Generate and show the complete sentence immediately
+    const completeSentence = generateCompleteSentence(randomVerb, randomPronoun);
+    setCurrentFullSentence(completeSentence);
+
+    // Generate multiple choice options
+    const correctAnswer = randomVerb.conjugations.present[randomPronoun];
+    const allConjugations = randomVerb.conjugations.present;
+    setMultipleChoiceOptions(generateMultipleChoice(correctAnswer, allConjugations));
+    setShowMultipleChoice(true);
+  }, [availableVerbs, generateMultipleChoice, generateCompleteSentence]);
+
+  // Check answer
+  const checkAnswer = useCallback((answer: string) => {
+    if (!currentVerb) return;
+
+    const correctAnswer = currentVerb.conjugations.present[currentPronounIndex];
+    const correct = answer === correctAnswer;
+
+    setIsCorrect(correct);
+    setShowResult(true);
+    setShowMultipleChoice(false);
+
+    if (correct) {
+      setScore(prev => prev + 10);
+      setStreak(prev => prev + 1);
+    } else {
+      setStreak(0);
+    }
+  }, [currentVerb, currentPronounIndex]);
+
+  // Get tip for current verb
+  const getTip = useCallback(() => {
+    if (!currentVerb) return "";
+
+    const tips = {
+      1: "ER verbs: Remove -er and add endings: -e, -es, -e, -ons, -ez, -ent",
+      2: "IR verbs: Remove -ir and add endings: -is, -is, -it, -issons, -issez, -issent",
+      3: "RE verbs: Remove -re and add endings: -s, -s, -t, -ons, -ez, -ent",
+    };
+
+    return tips[currentVerb.group] || "Check the verb group and apply the correct endings.";
+  }, [currentVerb]);
 
   // Speak the current sentence being displayed
   const speakCorrectSentence = useCallback(() => {
