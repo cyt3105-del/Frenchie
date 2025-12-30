@@ -36,6 +36,7 @@ export default function SettingsScreen() {
         // For web, wait for voices to load and use web-specific function
         const loadWebVoices = () => {
           const webVoices = getAvailableFrenchVoicesWeb();
+          console.log("Available French voices:", webVoices);
           setVoices(webVoices);
           setLoading(false);
         };

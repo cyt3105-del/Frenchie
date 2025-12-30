@@ -169,23 +169,24 @@ export function getAvailableFrenchVoicesWeb(): VoiceOption[] {
   }
 
   const voices = window.speechSynthesis.getVoices();
-  const preferredNames = ["amelie", "amélie", "daniel", "léa", "lea", "thomas"];
-  
-  const frenchVoices = voices
-    .filter((voice) => {
-      const languageMatch = voice.lang.startsWith("fr");
-      const name = voice.name.toLowerCase();
-      const isPreferred = preferredNames.some(
-        (preferred) => name.includes(preferred)
-      );
-      return languageMatch && isPreferred;
-    })
+
+  // First, try to get all French voices (not just preferred ones)
+  const allFrenchVoices = voices
+    .filter((voice) => voice.lang.startsWith("fr"))
     .map((voice) => ({
       identifier: voice.voiceURI || voice.name,
       name: voice.name,
       language: voice.lang,
       quality: voice.localService ? "Enhanced" : "Default",
     }));
+
+  // If we have French voices, return them all (don't limit to preferred names)
+  if (allFrenchVoices.length > 0) {
+    return allFrenchVoices;
+  }
+
+  // Fallback: if no French voices found, return empty array
+  return [];
 
   // If we don't have enough voices, try to find a natural French female voice
   const hasAmelie = frenchVoices.some((v) => 

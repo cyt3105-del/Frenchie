@@ -50,63 +50,27 @@ export function useSpeech() {
         utterance.rate = speechRate;
         utterance.pitch = 1.0;
 
-        // Get all voices and filter for preferred French voices
+        // Get all voices and find French voices
         const voices = window.speechSynthesis.getVoices();
-        const preferredNames = ["amelie", "amélie", "daniel", "léa", "lea", "thomas"];
-        
-        // First, try to find the selected voice if it matches preferred names
+        const frenchVoices = voices.filter((voice) => voice.lang.startsWith("fr"));
+
+        // First, try to find the selected voice
         let selectedVoiceObj = null;
         if (selectedVoice) {
           selectedVoiceObj = voices.find(
-            (v) => (v.name === selectedVoice || v.voiceURI === selectedVoice) &&
-                   v.lang.startsWith("fr")
+            (v) => (v.name === selectedVoice || v.voiceURI === selectedVoice)
           );
         }
-        
-        // If selected voice is preferred, use it
-        if (selectedVoiceObj && preferredNames.some(name => 
-          selectedVoiceObj.name.toLowerCase().includes(name)
-        )) {
+
+        if (selectedVoiceObj) {
           utterance.voice = selectedVoiceObj;
-        } else {
-          // Otherwise, find preferred French voices in priority order
-          const frenchVoices = voices.filter(
-            (voice) => voice.lang.startsWith("fr")
+        } else if (frenchVoices.length > 0) {
+          // Use any available French voice - prioritize Daniel if available, otherwise first French voice
+          const danielVoice = frenchVoices.find((v) =>
+            v.name.toLowerCase().includes("daniel")
           );
-          
-          // Priority: Amelie > Daniel > Léa > other French female voices
-          let preferredVoice = frenchVoices.find((v) => 
-            v.name.toLowerCase().includes("amelie") || 
-            v.name.toLowerCase().includes("amélie")
-          );
-          
-          if (!preferredVoice) {
-            preferredVoice = frenchVoices.find((v) => 
-              v.name.toLowerCase().includes("daniel")
-            );
-          }
-          
-          if (!preferredVoice) {
-            preferredVoice = frenchVoices.find((v) => 
-              v.name.toLowerCase().includes("léa") || 
-              v.name.toLowerCase().includes("lea")
-            );
-          }
-          
-          // If still no preferred voice, try to find any natural French female voice
-          if (!preferredVoice) {
-            const femaleNames = ["marie", "sophie", "celine", "céline", "isabelle"];
-            preferredVoice = frenchVoices.find((v) =>
-              femaleNames.some((name) => v.name.toLowerCase().includes(name))
-            );
-          }
-          
-          // Fallback to any French voice
-          if (preferredVoice) {
-            utterance.voice = preferredVoice;
-          } else if (frenchVoices.length > 0) {
-            utterance.voice = frenchVoices[0];
-          }
+
+          utterance.voice = danielVoice || frenchVoices[0];
         }
 
         utterance.onend = () => {
