@@ -22,6 +22,8 @@ const MAPPING = {
   "list.bullet": "format-list-bulleted",
   "square.grid.2x2.fill": "apps",
   "gearshape.fill": "settings",
+  // Conjugation / language learning icon mapping
+  "textformat.abc": "translate",
 } as IconMapping;
 
 /**
