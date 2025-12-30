@@ -606,7 +606,7 @@ export default function ConjugationScreen() {
                 // Highlight the blank (__) with special styling
                 const isBlank = word === '__';
                 return isTargetPronoun ? (
-                  <Text key={index} className="font-bold text-primary underline">
+                  <Text key={index}>
                     {word}{' '}
                   </Text>
                 ) : isBlank ? (
