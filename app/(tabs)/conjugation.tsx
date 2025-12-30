@@ -263,7 +263,7 @@ export default function ConjugationScreen() {
   const [streak, setStreak] = useState(0);
   const [currentFullSentence, setCurrentFullSentence] = useState<string>("");
   const [currentDisplaySentence, setCurrentDisplaySentence] = useState<string>("");
-  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé">("present");
+  const [selectedTense, setSelectedTense] = useState<"present" | "passéComposé" | "futurSimple">("present");
 
   const { speak } = useSpeech();
 
@@ -534,6 +534,15 @@ export default function ConjugationScreen() {
       return tipsPast[currentVerb.group] || "Use auxiliary avoir or être + past participle; check agreement rules.";
     }
 
+    if (selectedTense === "futurSimple") {
+      const tipsFuture: Record<number, string> = {
+        1: "Futur simple (ER): use infinitive + ai/as/a/ons/ez/ont (e.g., je parlerai).",
+        2: "Futur simple (IR): use infinitive + ai/as/a/ons/ez/ont (e.g., je finirai).",
+        3: "Futur simple (RE/irregular): use infinitive (or stem) + ai/as/a/ons/ez/ont; watch irregular stems (e.g., vouloir → voudr-).",
+      };
+      return tipsFuture[currentVerb.group] || "Use the future stem + endings: -ai, -as, -a, -ons, -ez, -ont.";
+    }
+
     const tipsPresent = {
       1: "ER verbs: Remove -er and add endings: -e, -es, -e, -ons, -ez, -ent",
       2: "IR verbs: Remove -ir and add endings: -is, -is, -it, -issons, -issez, -issent",
@@ -580,7 +589,7 @@ export default function ConjugationScreen() {
 
       {/* Tense Selector */}
       <View className="flex-row gap-2 mb-6">
-        {(["present", "passéComposé"] as const).map((tense) => (
+        {(["present", "passéComposé", "futurSimple"] as const).map((tense) => (
           <Pressable
             key={tense}
             onPress={() => setSelectedTense(tense)}
@@ -596,7 +605,7 @@ export default function ConjugationScreen() {
                 selectedTense === tense && styles.activeDifficultyButtonText,
               ]}
             >
-              {tense === "present" ? "Present (I do / I am doing)" : "Past (I did)"}
+              {tense === "present" ? "Present (I do / I am doing)" : tense === "futurSimple" ? "Future (I will)" : "Past (I did)"}
             </Text>
           </Pressable>
         ))}
