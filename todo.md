@@ -1,0 +1,21 @@
+# Project TODO
+
+- [x] Update theme colors to French-inspired palette
+- [x] Create French vocabulary data file (A2-B2 words, phrases, expressions)
+- [x] Build flashcard component with tap-to-reveal functionality
+- [x] Implement Home screen with flashcard interface
+- [x] Add remember/forgot buttons with tracking logic
+- [x] Create forgot list screen sorted by forgetting frequency
+- [x] Set up AsyncStorage for progress persistence
+- [x] Add tab navigation (Learn + Review tabs)
+- [x] Update icon mappings for tab bar
+- [x] Generate app logo and update branding
+- [x] Update app.config.ts with app name and logo
+- [x] Add text-to-speech for French word pronunciation
+- [x] Add speaker button to flashcard interface
+- [x] Test audio pronunciation functionality
+- [x] Research natural French voice audio resources
+- [x] Create voice settings store with AsyncStorage
+- [x] Create voice selection settings screen
+- [x] Update speech hook to use selected device voice
+- [x] Add Settings tab to navigation
