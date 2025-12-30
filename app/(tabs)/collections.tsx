@@ -22,11 +22,13 @@ interface CollectionInfo {
 
 const COLLECTIONS: CollectionInfo[] = [
   { id: "greetings", name: "Greetings", icon: "waving-hand", color: "#3B82F6", count: 0 },
+  { id: "daily-routines", name: "Daily Routines", icon: "home", color: "#059669", count: 0 },
+  { id: "daily-expressions", name: "Daily Expressions", icon: "chat", color: "#EC4899", count: 0 },
   { id: "food", name: "Food & Dining", icon: "restaurant", color: "#F59E0B", count: 0 },
+  { id: "beauty", name: "Beauty & Cosmetics", icon: "face", color: "#DB2777", count: 0 },
   { id: "travel", name: "Travel", icon: "flight", color: "#10B981", count: 0 },
   { id: "nature", name: "Nature", icon: "park", color: "#22C55E", count: 0 },
   { id: "conjunctions", name: "Conjunctions", icon: "link", color: "#8B5CF6", count: 0 },
-  { id: "daily-expressions", name: "Daily Expressions", icon: "chat", color: "#EC4899", count: 0 },
   { id: "time", name: "Time", icon: "schedule", color: "#06B6D4", count: 0 },
   { id: "shopping", name: "Shopping", icon: "shopping-cart", color: "#F97316", count: 0 },
   { id: "emotions", name: "Emotions", icon: "favorite", color: "#EF4444", count: 0 },
