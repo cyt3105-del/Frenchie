@@ -8,7 +8,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "npx expo start --web",
-    "build:web": "mkdir -p node_modules/react-native-css-interop/.cache && echo '/* CSS cache */' > node_modules/react-native-css-interop/.cache/web.css && expo export --platform web --clear",
+    "build:web": "mkdir -p node_modules/react-native-css-interop/.cache && echo '/* CSS cache */' > node_modules/react-native-css-interop/.cache/web.css && npx expo export --platform web --clear --output-dir dist",
     "check": "tsc --noEmit",
     "lint": "expo lint",
     "format": "prettier --write .",

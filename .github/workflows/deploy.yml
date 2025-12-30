@@ -33,8 +33,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Expo CLI
+        run: npm install -g @expo/cli
+
+      - name: Setup Expo
+        run: npx expo install --fix
+
       - name: Build
-        run: npm run build:web
+        run: |
+          echo "Starting build process..."
+          echo "Node version: $(node --version)"
+          echo "NPM version: $(npm --version)"
+          echo "Expo CLI version: $(npx expo --version)"
+          CI=false npm run build:web
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
