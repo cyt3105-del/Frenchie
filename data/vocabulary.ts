@@ -8,6 +8,7 @@ export type Collection =
   | "nature"
   | "conjunctions"
   | "daily-expressions"
+  | "daily-routines"
   | "time"
   | "shopping"
   | "emotions"
@@ -2121,7 +2122,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I get up at 7 o'clock every morning.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-002",
@@ -2131,7 +2132,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I wash my hands before eating.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-003",
@@ -2141,7 +2142,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I get dressed quickly in the morning.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-004",
@@ -2151,7 +2152,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "Don't forget to brush your teeth!",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-005",
@@ -2171,7 +2172,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "It's my turn to do the dishes.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-007",
@@ -2181,7 +2182,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I clean the house on weekends.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-008",
@@ -2191,7 +2192,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I always go to bed early.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-009",
@@ -2201,7 +2202,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "I need to rest a little.",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
   {
     id: "daily-010",
@@ -2211,7 +2212,7 @@ export const vocabulary: VocabularyItem[] = [
     exampleEn: "What time do you go home?",
     level: "A2",
     category: "phrase",
-    collection: "daily-expressions",
+    collection: "daily-routines",
   },
 
   // ===== SCHOOL & LEARNING (A2-B1) =====
