@@ -24,20 +24,28 @@ export default function LearnScreen() {
   const initialLoadDone = useRef(false);
 
   useEffect(() => {
+    console.log("Starting app initialization...");
+
     // Immediate loading - don't wait for AsyncStorage
+    console.log("Loading vocabulary data...");
     const shuffled = getShuffledVocabulary();
+    console.log("Vocabulary loaded:", shuffled.length, "items");
+
     setVocabulary(shuffled);
     setProgress({});
     setCurrentIndex(0);
     setLoading(false);
+    console.log("App loading complete - should show flashcards now");
 
     // Try to load saved data in background (don't block UI)
     async function loadSavedData() {
       try {
+        console.log("Loading saved progress data...");
         const [savedProgress, savedIndex] = await Promise.all([
           loadProgress(),
           loadCurrentIndex(),
         ]);
+        console.log("Saved data loaded:", { progressKeys: Object.keys(savedProgress).length, currentIndex: savedIndex });
         setProgress(savedProgress);
         setCurrentIndex(savedIndex % shuffled.length);
       } catch (error) {
@@ -80,6 +88,9 @@ export default function LearnScreen() {
       <ScreenContainer className="items-center justify-center">
         <ActivityIndicator size="large" color="#0055A4" />
         <Text className="text-muted mt-4">Loading vocabulary...</Text>
+        <Text className="text-xs text-muted mt-2">
+          Vocabulary array length: {vocabulary.length}
+        </Text>
       </ScreenContainer>
     );
   }
