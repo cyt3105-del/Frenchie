@@ -25,7 +25,7 @@ const MAPPING = {
   // Conjugation / language learning icon mapping
   "textformat.abc": "translate",
   // Gaming icon for conjugation game
-  "gamecontroller.fill": "videogame_asset",
+  "gamecontroller.fill": "gamepad",
 } as unknown as IconMapping;
 
 /**
