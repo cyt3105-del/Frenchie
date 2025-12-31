@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Debug - Frenchie App</title>
+</head>
+<body>
+    <h1>French Voice Debug</h1>
+    <div id="voices"></div>
+    <button onclick="checkVoices()">Check Available Voices</button>
+    <button onclick="testDaniel()">Test Daniel Voice</button>
+    <div id="result"></div>
+
+    <script>
+        function checkVoices() {
+            if ('speechSynthesis' in window) {
+                const voices = speechSynthesis.getVoices();
+                const frenchVoices = voices.filter(voice => voice.lang.startsWith('fr'));
+
+                const voicesDiv = document.getElementById('voices');
+                voicesDiv.innerHTML = '<h2>Available French Voices:</h2>';
+
+                if (frenchVoices.length === 0) {
+                    voicesDiv.innerHTML += '<p>No French voices found!</p>';
+                    voicesDiv.innerHTML += '<p>All voices:</p><ul>';
+                    voices.forEach(voice => {
+                        voicesDiv.innerHTML += `<li>${voice.name} (${voice.lang}) - ${voice.localService ? 'Local' : 'Remote'}</li>`;
+                    });
+                    voicesDiv.innerHTML += '</ul>';
+                } else {
+                    frenchVoices.forEach(voice => {
+                        voicesDiv.innerHTML += `<p>${voice.name} (${voice.lang}) - ${voice.localService ? 'Local' : 'Remote'}</p>`;
+                    });
+                }
+            } else {
+                document.getElementById('voices').innerHTML = '<p>Web Speech API not supported</p>';
+            }
+        }
+
+        function testDaniel() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if ('speechSynthesis' in window) {
+                const voices = speechSynthesis.getVoices();
+                const danielVoice = voices.find(voice =>
+                    voice.lang.startsWith('fr') &&
+                    voice.name.toLowerCase().includes('daniel')
+                );
+
+                if (danielVoice) {
+                    resultDiv.innerHTML = `<p>Found Daniel voice: ${danielVoice.name}</p>`;
+                    const utterance = new SpeechSynthesisUtterance('Bonjour, je suis Daniel. Comment allez-vous?');
+                    utterance.voice = danielVoice;
+                    utterance.rate = 0.8;
+                    speechSynthesis.speak(utterance);
+                } else {
+                    resultDiv.innerHTML = '<p>Daniel voice not found!</p>';
+                    // Try to find any French voice
+                    const frenchVoice = voices.find(voice => voice.lang.startsWith('fr'));
+                    if (frenchVoice) {
+                        resultDiv.innerHTML += `<p>Using fallback French voice: ${frenchVoice.name}</p>`;
+                        const utterance = new SpeechSynthesisUtterance('Bonjour, je suis une voix française. Comment allez-vous?');
+                        utterance.voice = frenchVoice;
+                        utterance.rate = 0.8;
+                        speechSynthesis.speak(utterance);
+                    } else {
+                        resultDiv.innerHTML += '<p>No French voices available at all!</p>';
+                    }
+                }
+            } else {
+                resultDiv.innerHTML = '<p>Web Speech API not supported</p>';
+            }
+        }
+
+        // Load voices on page load
+        window.addEventListener('load', () => {
+            if ('speechSynthesis' in window) {
+                speechSynthesis.getVoices(); // Trigger loading
+                setTimeout(checkVoices, 100);
+            }
+        });
+
+        // Also listen for voiceschanged event
+        if ('speechSynthesis' in window) {
+            speechSynthesis.addEventListener('voiceschanged', checkVoices);
+        }
+    </script>
+</body>
+</html>
